@@ -64,6 +64,7 @@ var wvar = {
     zoom: true,
     query: "",
     nyan: false,
+    site: 0,
 };
 
 
@@ -127,6 +128,10 @@ function load_hash(no_refresh) {
             case "nyan":
                 def[k] = !!parseInt(v);
                 break;
+            case "site":
+                focusID = v;
+                gotoSite(v);
+                break;
         }
     });
 
@@ -181,27 +186,6 @@ for(var idx in params) {
     }
 }
 
-$.ajaxSetup({ cache: true });
-
-var force_check_cache = false;
-
-// handle cachin events and display a loading bar
-var loadComplete = function(e) {
-    clearTimeout(initTimer);
-
-    if(e.type == 'updateready') {
-        // swapCache may throw exception if the isn't a previous cache
-        try {
-            window.applicationCache.swapCache();
-        } catch(v) {}
-
-        window.location.reload();
-        return;
-    }
-
-    $('#loading .complete').stop(true,true).animate({width: 200}, {complete: trackerInit });
-};
-
 // loads the tracker interface
 function trackerInit() {
     $('#loading,#settingsbox,#aboutbox,#chasebox').hide(); // welcome screen
@@ -223,21 +207,6 @@ function trackerInit() {
 
 // if for some reason, applicationCache is not working, load the app after a 3s timeout
 var initTimer = setTimeout(trackerInit, 3000);
-
-var cache = window.applicationCache;
-// TEMPORARILY DISABLED - MJ 2020-08-29
-// Application Cache is broken in recent chrome versions/
-// Disabling these addEventListener calls at least makes the rest of the page load.
-// Unsure what the implications of disabling these are.
-
-//cache.addEventListener('noupdate', loadComplete, false);
-//cache.addEventListener('updateready', loadComplete, false);
-//cache.addEventListener('cached', loadComplete, false);
-//cache.addEventListener('error', loadComplete, false);
-
-// if the browser supports progress events, display a loading bar
-//cache.addEventListener('checking', function() { if(map && !force_check_cache) return; force_check_cache = false; clearTimeout(initTimer); $('#loading .bar,#loading').show(); $('#loading .complete').css({width: 0}); }, false);
-//cache.addEventListener('progress', function(e) { $('#loading .complete').stop(true,true).animate({width: (200/e.total)*e.loaded}); }, false);
 
 var listScroll;
 var GPS_ts = null;
@@ -698,19 +667,6 @@ $(window).ready(function() {
         }
     });
 
-    // Functions for the payload recovery feature
-    // Logic to switch the recovery OK button
-    $("#sw_recovery_ok").click(function() {
-        var e = $(this);
-
-        // turning the switch off
-        if(e.hasClass('on')) {
-            e.removeClass('on').addClass('off');
-        // turning the switch on
-        } else {
-            e.removeClass('off').addClass('on');
-        }
-    });
     // Logic to switch the use car position button
     $("#sw_use_car_pos").click(function() {
         var e = $(this);
@@ -746,13 +702,12 @@ $(window).ready(function() {
         "#sw_haxis_hours",
         "#sw_daylight",
         "#sw_hide_receivers",
-        "#sw_hide_recoveries",
         "#sw_hide_chase",
         "#sw_hide_timebox",
         "#sw_hilight_vehicle",
         '#sw_hide_horizon',
         '#sw_hide_titles',
-        '#sw_layers_launches',
+        '#sw_selective_sidebar',
         "#sw_nowelcome",
         "#sw_interpolate",
     ];
@@ -804,15 +759,6 @@ $(window).ready(function() {
                     refreshReceivers();
                 }
                 break;
-            case "opt_hide_recoveries":
-                    if(on) {
-                        updateRecoveries([]);
-                        clearTimeout(periodical_recoveries);
-                    }
-                    else {
-                        refreshRecoveries();
-                    }
-                    break;
             case "opt_hide_chase":
                 if(on) {
                     clearTimeout(periodical_listeners);
@@ -833,10 +779,10 @@ $(window).ready(function() {
                 break;
             case "opt_hide_horizon":
                 if(on) {
-                    hideHorizonRings();
+                    showHorizonRings();
                 }
                 else {
-                    showHorizonRings();
+                    hideHorizonRings();
                 }
                 break;
             case "opt_hide_titles":
@@ -851,13 +797,8 @@ $(window).ready(function() {
                 if(on) map.overlayMapTypes.setAt("1", overlayAPRS);
                 else map.overlayMapTypes.setAt("1", null);
                 break;
-            case "opt_layers_launches":
-                showLaunchSites();
-                if(on) {
-                    map.removeLayer(launches);
-                } else {
-                    map.addLayer(launches);
-                }
+            case "opt_selective_sidebar":
+                sidebar_update();
                 break;
             case "opt_interpolate":
                 if(on) { graph_gap_size = graph_gap_size_max; }
@@ -874,22 +815,6 @@ $(window).ready(function() {
 
         if(offline.get(opt_name)) $(switch_id).removeClass('off').addClass('on');
     }
-
-    // force re-cache
-    $('#sw_cache').click(function() {
-        var e = $(this).removeClass('off').addClass('on');
-        if(confirm("The app will automatically reload, if new version is available.")) {
-            force_check_cache = true;
-
-            try {
-                applicationCache.update();
-            } catch (v) {
-                force_check_cache = false;
-                alert("There is no applicationCache available");
-            }
-        }
-        e.removeClass('on').addClass('off');
-    });
 
     // We are able to get GPS position on idevices, if the user allows
     // The position is displayed in top right corner of the screen
@@ -908,7 +833,7 @@ $(window).ready(function() {
                 // open map
                 $('.nav .home').click();
                 // pan map to our current location
-                map.flyTo(new L.LatLng(currentPosition.lat, currentPosition.lon));
+                map.panTo(new L.LatLng(currentPosition.lat, currentPosition.lon));
             } else {
                 alert("No position available");
             }

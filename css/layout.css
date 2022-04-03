@@ -80,12 +80,6 @@ header h1{
     margin-bottom: 0 !important;
 }
 
-.form.row select {
-    /* base.css makes this different to input for some reason. */
-    padding: 5px 4px;
-    width: 220px;
-}
-
 .validated input{
     float: left;
 }
