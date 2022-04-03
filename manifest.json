@@ -1,0 +1,63 @@
+{
+  "name": "SondeHub Tracker",
+  "short_name": "SondeHub",
+  "description": "A webapp for tracking radiosondes.",
+  "theme_color": "#00a3d3",
+  "background_color": "#00a3d3",
+  "display": "standalone",
+  "categories": ["utilities"],
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/img/icons/maskable_icon_x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/img/icons/maskable_icon_x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/img/icons/icon_x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/img/icons/icon_x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nyan Mode",
+      "short_name": "Nyan",
+      "description": "Start the tracker with Nyan Cat mode enabled",
+      "url": "/#!nyan=1",
+      "icons": [{ "src": "/img/icons/nyan_icon_x192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/img/screenshots/screenshot1.png",
+      "type": "image/png",
+      "sizes": "1242x2208"
+    },
+    {
+      "src": "/img/screenshots/screenshot2.png",
+      "type": "image/png",
+      "sizes": "1242x2208"
+    },
+    {
+      "src": "/img/screenshots/screenshot3.png",
+      "type": "image/png",
+      "sizes": "1242x2208"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 286 395.819" width="286" height="395.819" style="enable-background:new 0 0 286 392.67;" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style type="text/css">
+	.st0{fill:#00FF00;stroke:#000000;stroke-width:10;stroke-miterlimit:10;}
+	.st1{fill:none;stroke:#000000;stroke-width:10;stroke-miterlimit:10;}
+</style>
+  </defs>
+  <circle class="st0" cx="143.06" cy="103.33" r="44.93"/>
+  <line class="st1" x1="143.06" y1="148.26" x2="59.88" y2="389.19" style="stroke-linecap: round;"/>
+  <line class="st1" x1="143.06" y1="148.26" x2="226.24" y2="389.19" style="stroke-linecap: round;"/>
+  <line class="st1" x1="210.91" y1="344.78" x2="101.47" y2="268.73"/>
+  <line class="st1" x1="75.22" y1="344.78" x2="184.65" y2="268.73"/>
+  <line class="st1" x1="116.02" y1="226.59" x2="184.65" y2="268.73"/>
+  <line class="st1" x1="170.11" y1="226.59" x2="101.47" y2="268.73"/>
+  <g>
+    <path class="st1" d="M275.55,103.33c0,52.09-17.73,94.24-39.63,94.24" style="stroke-linecap: round; paint-order: fill; fill-rule: nonzero;"/>
+    <path class="st1" d="M275.55,103.33c0-52.09-17.73-94.24-39.63-94.24" style="stroke-linecap: round; paint-order: fill; fill-rule: nonzero;"/>
+    <path class="st1" d="M247,103.33c0,39.55-13.62,71.56-30.44,71.56" style="stroke-linecap: round; paint-order: fill; fill-rule: nonzero;"/>
+    <path class="st1" d="M247,103.33c0-39.55-13.62-71.56-30.44-71.56" style="stroke-linecap: round; paint-order: fill; fill-rule: nonzero;"/>
+    <path class="st1" d="M220.11,103.33c0,27.51-10.24,49.78-22.89,49.78" style="stroke-linecap: round; paint-order: fill; fill-rule: nonzero;"/>
+    <path class="st1" d="M220.11,103.88c0-27.51-10.24-49.78-22.89-49.78" style="stroke-linecap: round; paint-order: fill; fill-rule: nonzero;"/>
+  </g>
+  <g>
+    <path class="st1" d="M10.58,103.33c0,52.09,17.73,94.24,39.63,94.24" style="stroke-linecap: round; paint-order: fill;"/>
+    <path class="st1" d="M10.58,103.33c0-52.09,17.73-94.24,39.63-94.24" style="stroke-linecap: round; paint-order: fill;"/>
+    <path class="st1" d="M39.13,103.33c0,39.55,13.62,71.56,30.44,71.56" style="stroke-linecap: round; paint-order: fill;"/>
+    <path class="st1" d="M39.13,103.33c0-39.55,13.62-71.56,30.44-71.56" style="stroke-linecap: round; paint-order: fill;"/>
+    <path class="st1" d="M66.02,103.33c0,27.51,10.24,49.78,22.89,49.78" style="stroke-linecap: round; paint-order: fill;"/>
+    <path class="st1" d="M66.02,103.88c0-27.51,10.24-49.78,22.89-49.78" style="stroke-linecap: round; paint-order: fill;"/>
+  </g>
+</svg>
