@@ -4,7 +4,7 @@
 echo -n "Compiling CSS... "
 cd css
 rm -f mobile.css
-cat base.css skeleton.css layout.css habitat-font.css main.css > mobile.tmp
+cat base.css skeleton.css layout.css habitat-font.css main.css leaflet.css leaflet.fullscreen.css skewt.css > mobile.tmp
 java -jar "../tools/yuicompressor-2.4.8.jar" --type=css mobile.tmp > mobile.css
 rm -f mobile.tmp
 cd ..
@@ -24,6 +24,8 @@ java -jar "../tools/yuicompressor-2.4.8.jar" --type=js --disable-optimizations -
 java -jar "../tools/yuicompressor-2.4.8.jar" --type=js --disable-optimizations --nomunge chasecar.lib.js | sed "s/{VER}/$VERSION/" >> mobile.js
 java -jar "../tools/yuicompressor-2.4.8.jar" --type=js --disable-optimizations --nomunge tracker.js >> mobile.js
 java -jar "../tools/yuicompressor-2.4.8.jar" --type=js --disable-optimizations --nomunge app.js >> mobile.js
+java -jar "../tools/yuicompressor-2.4.8.jar" --type=js --disable-optimizations --nomunge colour-map.js >> mobile.js
+java -jar "../tools/yuicompressor-2.4.8.jar" --type=js --disable-optimizations --nomunge format.js >> mobile.js
 
 #compile plot lib and config
 java -jar "../tools/yuicompressor-2.4.8.jar" --type=js --disable-optimizations --nomunge _jquery.flot.js >> init_plot.js

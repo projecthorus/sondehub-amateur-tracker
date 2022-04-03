@@ -99,7 +99,7 @@
 	blockquote cite:before { content: "\2014 \0020"; }
 	blockquote cite a, blockquote cite a:visited, blockquote cite a:visited { color: #555; }
 
-	hr { border: solid #ddd; border-width: 1px 0 0; clear: both; margin: 10px 0 30px; height: 0; }
+	hr { border: solid #ddd; border-width: 1px 0 0; clear: both; height: 0; }
 
 
 /* #Links
@@ -152,6 +152,7 @@
 	  border: 1px solid #aaa;
 	  border-top: 1px solid #ccc;
 	  border-left: 1px solid #ccc;
+	  margin-right: 1px;
 	  -moz-border-radius: 3px;
 	  -webkit-border-radius: 3px;
 	  border-radius: 3px;
@@ -162,7 +163,6 @@
 	  text-decoration: none;
 	  text-shadow: 0 1px rgba(255, 255, 255, .75);
 	  cursor: pointer;
-	  margin-bottom: 20px;
 	  line-height: normal;
 	  padding: 8px 10px;
 	  font-family: "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif; }
@@ -229,8 +229,6 @@
 /* #Forms
 ================================================== */
 
-	form {
-		margin-bottom: 20px; }
 	fieldset {
 		margin-bottom: 20px; }
 	input[type="text"],
@@ -247,10 +245,7 @@
 		font: 13px "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
 		color: #888;
 		margin: 0;
-		width: 210px;
 		max-width: 100%;
-		display: block;
-		margin-bottom: 20px;
 		background: #fff; }
 	select {
 		padding: 0; }
