@@ -12,24 +12,26 @@ function formatData(data) {
             if (typeof data[key] === 'object') {
                 for (let i in data[key]) {
                     var dataTempEntry = {};
-                    var stations;
-                    if (data[key][i].software_name == "aprs") {
-                        stations = data[key][i].uploader_callsign.split(",");
-                    } else {
-                        stations = [data[key][i].uploader_callsign];
-                    }
                     dataTempEntry.callsign = {};
-                    for (let x in stations) {
-                        dataTempEntry.callsign[stations[x]] = {};
-                    }
-                    if (data[key][i].snr) {
-                        dataTempEntry.callsign[stations[0]].snr = data[key][i].snr;
-                    }
-                    if (data[key][i].rssi) {
-                        dataTempEntry.callsign[stations[0]].rssi = data[key][i].rssi;
-                    }
-                    if (data[key][i].frequency) {
-                        dataTempEntry.callsign[stations[0]].frequency = data[key][i].frequency;
+                    if (data[key][i].software_name == "aprs") {
+                        var stations = data[key][i].uploader_callsign.split(",");
+                        for (let uploader in stations) {
+                            dataTempEntry.callsign[stations[uploader]] = {};
+                        }
+                    } else {
+                        for (let uploader in data[key][i].uploaders) {
+                            uploader_callsign = data[key][i].uploaders[uploader].uploader_callsign;
+                            dataTempEntry.callsign[uploader_callsign] = {};
+                            if (data[key][i].uploaders[uploader].snr) {
+                                dataTempEntry.callsign[uploader_callsign].snr = +data[key][i].uploaders[uploader].snr.toFixed(1);
+                            }
+                            if (data[key][i].uploaders[uploader].rssi) {
+                                dataTempEntry.callsign[uploader_callsign].rssi = +data[key][i].uploaders[uploader].rssi.toFixed(1);
+                            }
+                            if (data[key][i].uploaders[uploader].frequency) {
+                                dataTempEntry.callsign[uploader_callsign].frequency = +data[key][i].uploaders[uploader].frequency.toFixed(3);
+                            }
+                        }
                     }
                     dataTempEntry.gps_alt = parseFloat((data[key][i].alt).toPrecision(8));
                     dataTempEntry.gps_lat = parseFloat((data[key][i].lat).toPrecision(8));
@@ -45,11 +47,14 @@ function formatData(data) {
                     dataTempEntry.vehicle = data[key][i].payload_callsign;
                     dataTempEntry.position_id = data[key][i].payload_callsign + "-" + data[key][i].datetime;
                     dataTempEntry.data = {};
-                    if (data[key][i].batt) {
-                        dataTempEntry.data.batt = Math.round(data[key][i].batt, 2);
+                    if (data[key][i].hasOwnProperty("batt")) {
+                        dataTempEntry.data.batt = +data[key][i].batt.toFixed(2);
                     }
-                    if (data[key][i].frequency) {
-                        dataTempEntry.data.frequency = Math.round(data[key][i].frequency, 3);
+                    if (data[key][i].hasOwnProperty("frequency")) {
+                        dataTempEntry.data.frequency = +data[key][i].frequency.toFixed(3);
+                    }
+                    if (data[key][i].hasOwnProperty("tx_frequency")) {
+                        dataTempEntry.data.frequency_tx = +data[key][i].tx_frequency.toFixed(3);
                     }
                     if (data[key][i].hasOwnProperty("humidity")) {
                         dataTempEntry.data.humidity = data[key][i].humidity;
@@ -57,11 +62,17 @@ function formatData(data) {
                     if (data[key][i].hasOwnProperty("pressure")) {
                         dataTempEntry.data.pressure = data[key][i].pressure;
                     }
-                    if (data[key][i].sats) {
+                    if (data[key][i].hasOwnProperty("sats")) {
                         dataTempEntry.data.sats = data[key][i].sats;
                     }
                     if (data[key][i].hasOwnProperty("temp")) {
                         dataTempEntry.data.temperature_external = data[key][i].temp;
+                    }
+                    if (data[key][i].hasOwnProperty("comment")) {
+                        dataTempEntry.data.comment = data[key][i].comment;
+                    }
+                    if (data[key][i].hasOwnProperty("modulation")) {
+                        dataTempEntry.data.modulation = data[key][i].modulation;
                     }
                     dataTemp.push(dataTempEntry);
                 }

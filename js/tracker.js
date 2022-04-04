@@ -93,63 +93,6 @@ var Z_SHADOW = 1000000;
 var Z_CAR = 1000001;
 var Z_PAYLOAD = 1000002;
 
-// SondeHub V1 types
-
-var v1types = {
-    "RS41": "RS41",
-    "RS41-Ozone": "RS41",
-    "RS41-SGP-Ozone": "RS41-SGP",
-    "RS41-SG": "RS41-SG",
-    "RS41-SG-Ozone": "RS41-SG",
-    "RS41-SGP": "RS41-SGP",
-    "RS41-SGM": "RS41-SGM",
-    "RS41-NG": "RS41-NG",
-    "RS92": "RS92",
-    "RS92-Ozone": "RS92",
-    "IMET": "iMet-4",
-    "iMet": "iMet-4",
-    "DFM": "DFM",
-    "DFM06": "DFM06",
-    "DFM09": "DFM09",
-    "DFMxB": "DFM",
-    "DFMxC": "DFM",
-    "DFMx7": "DFMx7",
-    "DFMx9": "DFMx9",
-    "DFM17": "DFM17",
-    "DFM09P": "DFM09P",
-    "MK2LMS": "LMS6-1680",
-    "LMS6": "LMS6-400",
-    "M10": "M10",
-    ",M10": "M10",
-    "M10-Ptu": "M10",
-    "M20": "M20",
-    "MEISEI": "IMS100",
-    "IMS100": "IMS100",
-    "IMET5": "iMet-5x"
-}
-
-var v1manufacturers = {
-    "RS92": "Vaisala", 
-    "RS41": "Vaisala",
-    "RS41-SG": "Vaisala",
-    "RS41-SGP": "Vaisala",
-    "RS41-SGM": "Vaisala",
-    "RS41-NG": "Vaisala",
-    "iMet-4": "Intermet Systems",
-    "iMet-5x": "Intermet Systems",
-    "DFM": "Graw",
-    "DFM06": "Graw",
-    "DFM09": "Graw",
-    "DFMx7": "Graw",
-    "DFMx9": "Graw",
-    "DFM17": "Graw",
-    "DFM09P": "Graw",
-    "LMS6-400": "Lockheed Martin",
-    "LMS6-1680": "Lockheed Martin",
-    "M10": "Meteomodem",
-    "M20": "Meteomodem"
-}
-
 var globalKeys = {
     "ascentrate": "Ascent Rate",
     "battery_percent": "Battery",
@@ -256,13 +199,6 @@ var plot_options = {
         }
     ]
 };
-
-// aprs overlay (not used)
-var overlayARPS = new L.tileLayer('http://{s}.tiles.tracker.habhub.org/aprs/tile_{z}_{x}_{y}.png', {
-	subdomains: 'abc',
-    maxZoom: 6,
-    attribution: '&copy; <a href="https://tracker.habhub.org/">HabHub</a>'
-});
 
 //Global Precipitation Weather
 var RainRadar = new L.tileLayer('https://tilecache.rainviewer.com/v2/radar/' + (Math.floor(new Date().getTime() / 600000) * 600) + '/512/{z}/{x}/{y}/1/1_0.png', {
@@ -654,7 +590,7 @@ function load() {
         onAdd: function(map) {
             var div = L.DomUtil.create('div');
     
-            div.innerHTML = '<select name="timeperiod" id="timeperiod" style="width:auto !important;height:30px;" onchange="clean_refresh(this.value)"><option value="1h">1 hour</option><option value="3h" selected="selected">3 hours</option><option value="6h">6 hours</option><option value="12h">12 hours</option></select>';
+            div.innerHTML = '<select name="timeperiod" id="timeperiod" style="width:auto !important;height:30px;" onchange="clean_refresh(this.value)"><option value="1h">1 hour</option><option value="3h" selected="selected">3 hours</option><option value="6h">6 hours</option><option value="12h">12 hours</option><option value="1d">1 day</option><option value="3d">3 days</option></select>';
             div.innerHTML.onload = setTimeValue();
 
             return div;
@@ -889,7 +825,8 @@ function habitat_data(jsondata, alternative) {
     "spam": true,
     "battery_millivolts": true,
     "temperature_internal_x10": true,
-    "uplink_rssi_raw": true
+    "uplink_rssi_raw": true,
+    "comment": true
   };
 
   var suffixes = globalSuffixes;
@@ -1602,18 +1539,8 @@ function skewTdraw (callsign) {
             return;
         }
 
-        v1_data = false;
-        sonde_type = data[data.length-1].type;
-        if(sonde_type == 'payload_telemetry'){
-            // Sondehub v1 data.
-            v1_data = true;
-        }
-
         var skewt_data = [];
-        decimation = 25;
-        if (v1_data == true){
-            decimation = 1;
-        }
+        decimation = 10;
 
         idx = 1;
 
@@ -2078,90 +2005,9 @@ function mapInfoBox_handle_path_fetch(id,vehicle) {
         dataType: "json",
         success: function(data) {
             mapInfoBox_handle_path_new(data, vehicle, date);
-        },
-        error: function() {
-            mapInfoBox_handle_path_old(vehicle, id);
-        }     
+        }  
     });
 };
-
-function mapInfoBox_handle_path_old(vehicle, id) {
-    var url = "https://api.v2.sondehub.org/sonde/" + vehicle.callsign;
-    var index = vehicle["positions_ids"][vehicle["positions_ts"].indexOf(id)].substring(vehicle.callsign.length + 1);
-    
-    $.ajax({
-        type: "GET",
-        url: url,
-        dataType: "json",
-        success: function(data) {
-            for (var i = 0; i < data.length; i++) {
-                if (data[i]["datetime"] == index) {
-                    data = data[i];
-                    div = document.createElement('div');
-
-                    html = "<div style='line-height:16px;position:relative;'>";
-                    html += "<div>"+data.serial+" <span style=''>("+data.datetime+")</span></div>";
-                    html += "<hr style='margin:5px 0px'>";
-                    html += "<div style='margin-bottom:5px;'><b><i class='icon-location'></i>&nbsp;</b>"+roundNumber(data.lat, 5) + ',&nbsp;' + roundNumber(data.lon, 5)+"</div>";
-
-                    var imp = offline.get('opt_imperial');
-                    var text_alt = Number((imp) ? Math.floor(3.2808399 * parseInt(data.alt)) : parseInt(data.alt)).toLocaleString("us");
-                    text_alt += "&nbsp;" + ((imp) ? 'ft':'m');
-
-                    html += "<div><b>Altitude:&nbsp;</b>"+text_alt+"</div>";
-                    html += "<div><b>Time:&nbsp;</b>"+formatDate(stringToDateUTC(data.datetime))+"</div>";
-
-                    var value = vehicle.path_length;
-
-                    html += "<div><b>Distance:&nbsp;</b>";
-
-                    if(offline.get('opt_imperial')) {
-                        html += Math.round(value*0.000621371192) + "&nbsp;mi";
-                    } else {
-                        html += Math.round(value/10)/100 + "&nbsp;km";
-                    }
-
-                    html += "</div>";
-                    html += "<div><b>Duration:&nbsp;</b>" + format_time_friendly(vehicle.start_time, convert_time(vehicle.curr_position.gps_time)) + "</div>";
-
-                    html += "<hr style='margin:5px 0px'>";
-
-                    if (data.hasOwnProperty("humidity")) {
-                        html += "<div><b>Relative Humidity:&nbsp;</b>" + data.humidity + " %</div>";
-                    };
-                    if (data.hasOwnProperty("temp")) {
-                        html += "<div><b>Temperature External:&nbsp;</b>" + data.temp + "°C</div>";
-                    };
-                    if (data.hasOwnProperty("comment")) {
-                        html += "<div><b>Comment:&nbsp;</b>" + data.comment + "</div>";
-                    };
-
-                    html += "<hr style='margin:0px;margin-top:5px'>";
-                    html += "<div style='font-size:11px;'>"
-
-                    if (data.hasOwnProperty("uploader_callsign")) {
-                        html += "<div>" + data.uploader_callsign + "</div>";
-                    };
-
-                    div.innerHTML = html;
-
-                    mapInfoBox.setContent(div);
-                    mapInfoBox.openOn(map);
-
-                    setTimeout(function() {
-                        div.parentElement.style.overflow = "";
-                        div.parentElement.style.overflowWrap = "break-word";
-                    }, 16);
-                }
-            }
-        },
-        error: function() {
-            mapInfoBox.setContent("not&nbsp;found");
-            mapInfoBox.openOn(map);
-            return;
-        }     
-    });
-}
 
 function mapInfoBox_handle_path_new(data, vehicle, date) {
     if (Object.keys(data).length === 0) {
@@ -2170,19 +2016,22 @@ function mapInfoBox_handle_path_new(data, vehicle, date) {
         return;
     }
 
-    data = data[vehicle.callsign][date];
+    formatted = {};
+    formatted[vehicle.callsign] = {};
+    formatted[vehicle.callsign][date] = data[vehicle.callsign][date]
 
-    console.log(data);
+    data = formatData(formatted);
+    data = data.positions.position[0];
 
     div = document.createElement('div');
 
     html = "<div style='line-height:16px;position:relative;'>";
-    html += "<div>"+data.serial+" <span style=''>("+date+")</span></div>";
+    html += "<div>"+data.vehicle+" <span style=''>("+date+")</span></div>";
     html += "<hr style='margin:5px 0px'>";
-    html += "<div style='margin-bottom:5px;'><b><i class='icon-location'></i>&nbsp;</b>"+roundNumber(data.lat, 5) + ',&nbsp;' + roundNumber(data.lon, 5)+"</div>";
+    html += "<div style='margin-bottom:5px;'><b><i class='icon-location'></i>&nbsp;</b>"+roundNumber(data.gps_lat, 5) + ',&nbsp;' + roundNumber(data.gps_lon, 5)+"</div>";
 
     var imp = offline.get('opt_imperial');
-    var text_alt = Number((imp) ? Math.floor(3.2808399 * parseInt(data.alt)) : parseInt(data.alt)).toLocaleString("us");
+    var text_alt = Number((imp) ? Math.floor(3.2808399 * parseInt(data.gps_alt)) : parseInt(data.gps_alt)).toLocaleString("us");
     text_alt += "&nbsp;" + ((imp) ? 'ft':'m');
 
     html += "<div><b>Altitude:&nbsp;</b>"+text_alt+"</div>";
@@ -2203,33 +2052,31 @@ function mapInfoBox_handle_path_new(data, vehicle, date) {
 
     html += "<hr style='margin:5px 0px'>";
 
-    if (data.hasOwnProperty("batt")) {
-        html += "<div><b>Battery Voltage:&nbsp;</b>" + data.batt + " V</div>";
+    if (data.data.hasOwnProperty("batt")) {
+        html += "<div><b>Battery Voltage:&nbsp;</b>" + data.data.batt + " V</div>";
     };
-    if (data.hasOwnProperty("tx_frequency")) {
-        html += "<div><b>TX Frequency:&nbsp;</b>" + data.tx_frequency + " MHz</div>";
-    } else if (data.hasOwnProperty("frequency")) {
-        html += "<div><b>Frequency:&nbsp;</b>" + data.frequency + " MHz</div>";
+    if (data.data.hasOwnProperty("tx_frequency")) {
+        html += "<div><b>TX Frequency:&nbsp;</b>" + data.data.tx_frequency + " MHz</div>";
+    } else if (data.data.hasOwnProperty("frequency")) {
+        html += "<div><b>Frequency:&nbsp;</b>" + data.data.frequency + " MHz</div>";
     };
-    if (data.hasOwnProperty("humidity")) {
-        html += "<div><b>Relative Humidity:&nbsp;</b>" + data.humidity + " %</div>";
+    if (data.data.hasOwnProperty("humidity")) {
+        html += "<div><b>Relative Humidity:&nbsp;</b>" + data.data.humidity + " %</div>";
     };
-    if (data.hasOwnProperty("manufacturer")) {
-        html += "<div><b>Manufacturer:&nbsp;</b>" + data.manufacturer + "</div>";
+    if (data.data.hasOwnProperty("pressure")) {
+        html += "<div><b>Pressure:&nbsp;</b>" + data.data.pressure + " Pa</div>";
     };
-    if (data.hasOwnProperty("pressure")) {
-        html += "<div><b>Pressure:&nbsp;</b>" + data.pressure + " Pa</div>";
+    if (data.data.hasOwnProperty("sats")) {
+        html += "<div><b>Satellites:&nbsp;</b>" + data.data.sats + "</div>";
     };
-    if (data.hasOwnProperty("sats")) {
-        html += "<div><b>Satellites:&nbsp;</b>" + data.sats + "</div>";
+    if (data.data.hasOwnProperty("temp")) {
+        html += "<div><b>Temperature External:&nbsp;</b>" + data.data.temp + "°C</div>";
     };
-    if (data.hasOwnProperty("temp")) {
-        html += "<div><b>Temperature External:&nbsp;</b>" + data.temp + "°C</div>";
+    if (data.data.hasOwnProperty("modulation")) {
+        html += "<div><b>Modulation:&nbsp;</b>" + data.data.modulation + "</div>";
     };
-    if (data.hasOwnProperty("subtype")) {
-        html += "<div><b>Sonde Type:&nbsp;</b>" + data.subtype + "</div>";
-    } else if (data.hasOwnProperty("type")) {
-        html += "<div><b>Sonde Type:&nbsp;</b>" + data.type + "</div>";
+    if (data.data.hasOwnProperty("comment")) {
+        html += "<div><b>Comment:&nbsp;</b>" + data.data.comment + "</div>";
     };
 
     html += "<hr style='margin:0px;margin-top:5px'>";
@@ -2237,17 +2084,17 @@ function mapInfoBox_handle_path_new(data, vehicle, date) {
 
     var callsign_list = [];
 
-    for (var i = 0; i < data.uploaders.length; i++) {
-        _new_call = data.uploaders[i].uploader_callsign;
+    for (let callsign in data.callsign) {
+        _new_call = callsign;
         tempFields = [];
-        if(data.uploaders[i].hasOwnProperty('snr')) {
-            tempFields.push(data.uploaders[i].snr.toFixed(0) + " dB");
+        if(data.callsign[callsign].hasOwnProperty('snr')) {
+            tempFields.push(data.callsign[callsign].snr.toFixed(0) + " dB");
         } 
-        if(data.uploaders[i].hasOwnProperty('rssi')) {
-            tempFields.push(data.uploaders[i].rssi.toFixed(0) + " dBm");
+        if(data.callsign[callsign].hasOwnProperty('rssi')) {
+            tempFields.push(data.callsign[callsign].rssi.toFixed(0) + " dBm");
         }
-        if(data.uploaders[i].hasOwnProperty('frequency')) {
-            tempFields.push(data.uploaders[i].frequency + " MHz");
+        if(data.callsign[callsign].hasOwnProperty('frequency')) {
+            tempFields.push(data.callsign[callsign].frequency + " MHz");
         }
         if(tempFields.length > 0) {
             _new_call += " (" + tempFields.join(", ") + ")";
@@ -3259,6 +3106,7 @@ function refresh() {
         }
         clientActive = true;
         clearTimeout(periodical);
+        periodical = setTimeout(refresh, timer_seconds * 1000);
         ajax_inprogress = false;
     }
   });
@@ -3457,7 +3305,7 @@ function refreshPredictions() {
 
 var periodical, periodical_focus, periodical_focus_new, periodical_receivers, periodical_listeners;
 var periodical_predictions = null;
-var timer_seconds = 5;
+var timer_seconds = 30;
 
 function startAjax() {
 
