@@ -27,8 +27,6 @@ var stationMarkerLookup = {};
 var markerStationLookup = {};
 var predictionAjax = [];
 
-var skewtdata = [];
-
 var focusID = 0;
 
 var receiverCanvas = null;
@@ -1375,7 +1373,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
            '<img class="'+((vehicle.vehicle_type=="car")?'car':'')+'" src="'+image+'" />' +
            '<span class="vbutton path '+((vehicle.polyline_visible) ? 'active' : '')+'" data-vcallsign="'+vcallsign+'"' + ' style="top:'+(vehicle.image_src_size[1]+55)+'px">Path</span>' +
            ((vehicle.vehicle_type!="car") ? '<span class="sbutton" onclick="shareVehicle(\'' + vcallsign + '\')" style="top:'+(vehicle.image_src_size[1]+85)+'px">Share</span>' : '') +
-           ((vehicle.vehicle_type!="car") ? '<span class="sbutton" onclick="skewTdraw(\'' + vcallsign + '\')" style="top:'+(vehicle.image_src_size[1]+115)+'px">SkewT</span>' : '') +
+           ((vehicle.vehicle_type!="car" && newPosition.gps_alt > 1000 && vehicle.ascent_rate < 1) ? '<span class="sbutton" onclick="generateHysplit(\'' + vcallsign + '\')" style="top:'+(vehicle.image_src_size[1]+115)+'px">Hysplit</span>' : '') +
            '<div class="left">' +
            '<dl>';
   //mobile
@@ -1387,7 +1385,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
            '<img class="'+((vehicle.vehicle_type=="car")?'car':'')+'" src="'+image+'" />' +
            '<span class="vbutton path '+((vehicle.polyline_visible) ? 'active' : '')+'" data-vcallsign="'+vcallsign+'"' + ' style="top:55px">Path</span>' +
            ((vehicle.vehicle_type!="car") ? '<span class="sbutton" onclick="shareVehicle(\'' + vcallsign + '\')" style="top:85px">Share</span>' : '') +
-           ((vehicle.vehicle_type!="car") ? '<span class="sbutton" onclick="skewTdraw(\'' + vcallsign + '\')" style="top:115px">SkewT</span>' : '') +
+           ((vehicle.vehicle_type!="car" && newPosition.gps_alt > 1000 && vehicle.ascent_rate < 1) ? '<span class="sbutton" onclick="generateHysplit(\'' + vcallsign + '\')" style="top:115px">Hysplit</span>' : '') +
            '<div class="left">' +
            '<dl>';
   var b    = '</dl>' +
@@ -1441,204 +1439,45 @@ function updateVehicleInfo(vcallsign, newPosition) {
   return true;
 }
 
-function skewTdelete () {
-    var box = $("#skewtbox");
-    
-    skewt.clear();
-    $('#resetSkewt').hide();
-    $('#deleteSkewt').hide();
-    $("#skewtSerial").text("Select a Radiosonde from the list and click 'SkewT' to plot. Note that not all radiosonde types are supported.");
-    box.hide();
-    //$('.skewt').hide();
-    $("#skewt-plot").empty();
-    checkSize();
-}
-
-function skewTrefresh () {
-    skewt.clear();
-    $("#skewt-plot").empty();
-    $('#resetSkewt').hide();
-    $('#deleteSkewt').hide();
-
-    skewt = new SkewT('#skewt-plot');
-    
-    try {
-        skewt.plot(skewtdata);
-        $('#resetSkewt').show();
-        $('#deleteSkewt').show();
+function generateHysplit(callsign) {
+    var vehicle = vehicles[callsign];
+    for (var alt = -1000; alt <= 1000; alt+=100) {
+        createHysplit(callsign, alt);
     }
-    catch(err) {}
 }
 
-function skewTdraw (callsign) {
-    // Open sidebar
-    var box = $("#skewtbox");
+function createHysplit(callsign, adjustment) {
+    var vehicle = vehicles[callsign];
 
-    if(box.is(':hidden')) {
-        $('.flatpage, #homebox').hide();
-        $('.skewt').show();
-        box.show().scrollTop(0);
-        checkSize();
-    };
+    var altitude = Math.round(vehicle.curr_position.gps_alt) + adjustment;
 
-    // Delete existing
-    try {
-        skewt.clear();
-    } catch (err) {}
+    var endTime = new Date(Date.parse(vehicle.curr_position.gps_time));
+    endTime.setHours(endTime.getHours() + 84);
+    endTime = endTime.toISOString();
 
-    $('#resetSkewt').hide();
-    $('#deleteSkewt').hide();
-    $("#skewt-plot").empty();
-    $("#skewtErrors").text("");
-    $("#skewtErrors").hide();
+    var url = "https://predict.cusf.co.uk/api/v1/?profile=float_profile"
+        + "&launch_latitude=" + vehicle.curr_position.gps_lat
+        + "&launch_longitude=" + vehicle.curr_position.gps_lon
+        + "&launch_altitude=" + (altitude-1)
+        + "&launch_datetime=" + vehicle.curr_position.gps_time
+        + "&ascent_rate=0.1"
+        + "&float_altitude=" + altitude
+        + "&stop_datetime=" + endTime;
 
-    // Loading gif
-    $("#skewtLoading").show();
-    $("#skewtSerial").show();
-    $("#skewtSerial").text("Serial: " + callsign);
-
-    // Download Data
-    var data_url = "https://api.v2.sondehub.org/sonde/" + encodeURIComponent(callsign);
     $.ajax({
         type: "GET",
-        url: data_url,
+        url: url,
         dataType: "json",
         success: function(data) {
-            processSkewT(data);
-        }
+            var path = [[vehicle.curr_position.gps_lat, vehicle.curr_position.gps_lon]];
+            for (let point in data.prediction[1].trajectory) {
+                path.push([data.prediction[1].trajectory[point].latitude, data.prediction[1].trajectory[point].longitude]);
+            }
+            vehicle.prediction_hysplit[adjustment] = new L.Wrapped.Polyline(path);
+            vehicle.prediction_hysplit[adjustment].addTo(map)
+        }  
     });
-
-    // Credit https://github.com/projecthorus/sondehub-card/blob/main/js/utils.js#L116
-    function processSkewT (data) {
-        burst_idx = -1;
-        max_alt = -99999.0;
-        for (let i = 0; i < data.length; i++){
-            alt = parseFloat(data[i].alt);
-            if (alt > max_alt){
-                max_alt = alt;
-                burst_idx = i;
-            }
-        }
-        if(data.length < 50){
-            $("#skewtErrors").text("Insufficient data for Skew-T plot (<50 points).");
-            $("#skewtErrors").show();
-            return;
-        }
-    
-        // Check that we have ascent data
-        if (burst_idx <= 0){
-            $("#skewtErrors").text("Insufficient data for Skew-T plot (Only descent data available).");
-            $("#skewtErrors").show();
-            return;
-        }
-    
-        // Check that the first datapoint is at a reasonable altitude.
-        if (data[0].alt > 15000){
-            $("#skewtErrors").text("Insufficient data for Skew-T plot (Only data > 15km available)");
-            $("#skewtErrors").show();
-            return;
-        }
-
-        var skewt_data = [];
-        decimation = 10;
-
-        idx = 1;
-
-        while (idx < burst_idx){
-            entry = data[idx];
-            old_entry = data[idx-1];
-    
-            _old_date = new Date(old_entry.datetime);
-            _new_date = new Date(entry.datetime);
-            _time_delta = (_new_date - _old_date)/1000.0;
-            if (_time_delta <= 0){
-                idx = idx + 1;
-                continue;
-            }
-    
-            _temp = null;
-            _dewp = -1000.0;
-            _pressure = null;
-    
-            // Extract temperature datapoint
-            if (entry.hasOwnProperty('temp')){
-                if(parseFloat(entry.temp) > -270.0){
-                    _temp = parseFloat(entry.temp);
-                } else{
-                    idx = idx + 1;
-                    continue;
-                }
-            }else{
-                // No temp data. Skip to the next point
-                idx = idx + 1;
-                continue;
-            }
-    
-            // Try and extract RH datapoint
-            if (entry.hasOwnProperty('humidity')){
-                if(parseFloat(entry.humidity) >= 0.0){
-                    _rh = parseFloat(entry.humidity);
-                    // Calculate the dewpoint
-                    _dewp = (243.04 * (Math.log(_rh / 100) + ((17.625 * _temp) / (243.04 + _temp))) / (17.625 - Math.log(_rh / 100) - ((17.625 * _temp) / (243.04 + _temp))));
-                } else {
-                    _dewp = -1000.0;
-                }
-            }
-    
-            // Calculate movement
-            _old_pos = {'lat': old_entry.lat, 'lon': old_entry.lon, 'alt': old_entry.alt};
-            _new_pos = {'lat': entry.lat, 'lon': entry.lon, 'alt': entry.alt};
-    
-            _pos_info = calculate_lookangles(_old_pos, _new_pos);
-            _wdir = (_pos_info['azimuth']+180.0)%360.0;
-            _wspd = _pos_info['great_circle_distance']/_time_delta;
-    
-            if (entry.hasOwnProperty('pressure')){
-                _pressure = entry.pressure;
-            } else {
-                // Otherwise, calculate it
-                _pressure = getPressure(_new_pos.alt);
-            }
-    
-            if(_pressure < 50.0){
-                break;
-            }
-    
-            _new_skewt_data = {"press": _pressure, "hght": _new_pos.alt, "temp": _temp, "dwpt": _dewp, "wdir": _wdir, "wspd": _wspd};
-    
-            skewt_data.push(_new_skewt_data);
-    
-            idx = idx + decimation;
-        }
-
-        skewtdata = skewt_data;
-
-        $("#skewtLoading").hide();
-
-        if (skewtdata.length > 0){
-
-            if(box.is(':hidden')) {
-                $('.flatpage, #homebox').hide();
-                $('.skewt').show();
-                box.show().scrollTop(0);
-                checkSize();
-            };
-
-            skewt = new SkewT('#skewt-plot');
-    
-            try {
-                skewt.plot(skewtdata);
-                $('#resetSkewt').show();
-                $('#deleteSkewt').show();
-            }
-            catch(err) {}
-    
-        } else {
-            $("#skewtErrors").show();
-            $("#skewtErrors").text("Insufficient Data available, or no Temperature/Humidity data available to generate Skew-T plot.");
-        };
-    }
-};
+}
 
 function set_polyline_visibility(vcallsign, val) {
     var vehicle = vehicles[vcallsign];
@@ -2549,6 +2388,7 @@ function addPosition(position) {
                             prediction_burst: null,
                             prediction_launch: null,
                             prediction_launch_polyline: null,
+                            prediction_hysplit: {},
                             ascent_rate: 0.0,
                             horizontal_rate: 0.0,
                             max_alt: parseFloat(position.gps_alt),

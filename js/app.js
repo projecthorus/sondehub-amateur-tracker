@@ -853,17 +853,6 @@ $(window).ready(function() {
         ['Global', [
             ['rainviewer', 'RainViewer'],
             ['rainviewer-coverage', 'RainViewer Coverage'],
-        ]],
-        ['North America', [
-            ['nexrad-n0q-900913', 'NEXRAD Base Reflectivity'],
-            ['goes-ir-4km-900913', 'GOES NA Infrared ~4km'],
-            ['goes-wv-4km-900913', 'GOES NA Water Vapor ~4km'],
-            ['goes-vis-1km-900913', 'GOES NA Visible ~1km'],
-            ['q2-n1p-900913', 'Q2 1 Hour Precipitation'],
-            ['q2-p24h-900913', 'Q2 24 Hour Precipitation'],
-            ['q2-p48h-900913', 'Q2 48 Hour Precipitation'],
-            ['q2-p72h-900913', 'Q2 72 Hour Precipitation'],
-            ['q2-hsr-900913', 'MRMS Hybrid-Scan Reflectivity Composite.']
         ]]
     ];
 
