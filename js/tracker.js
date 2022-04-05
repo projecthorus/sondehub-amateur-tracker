@@ -1373,7 +1373,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
            '<img class="'+((vehicle.vehicle_type=="car")?'car':'')+'" src="'+image+'" />' +
            '<span class="vbutton path '+((vehicle.polyline_visible) ? 'active' : '')+'" data-vcallsign="'+vcallsign+'"' + ' style="top:'+(vehicle.image_src_size[1]+55)+'px">Path</span>' +
            ((vehicle.vehicle_type!="car") ? '<span class="sbutton" onclick="shareVehicle(\'' + vcallsign + '\')" style="top:'+(vehicle.image_src_size[1]+85)+'px">Share</span>' : '') +
-           ((vehicle.vehicle_type!="car" && newPosition.gps_alt > 1000 && vehicle.ascent_rate < 1) ? '<span class="sbutton" onclick="generateHysplit(\'' + vcallsign + '\')" style="top:'+(vehicle.image_src_size[1]+115)+'px">Hysplit</span>' : '') +
+           ((vehicle.vehicle_type!="car" && newPosition.gps_alt > 1000 && vehicle.ascent_rate < 1) ? '<span class="sbutton hysplit '+((vehicle.prediction_hysplit_visible) ? 'active' : '')+'" data-vcallsign="' + vcallsign + '" style="top:'+(vehicle.image_src_size[1]+115)+'px">Hysplit</span>' : '') +
            '<div class="left">' +
            '<dl>';
   //mobile
@@ -1385,7 +1385,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
            '<img class="'+((vehicle.vehicle_type=="car")?'car':'')+'" src="'+image+'" />' +
            '<span class="vbutton path '+((vehicle.polyline_visible) ? 'active' : '')+'" data-vcallsign="'+vcallsign+'"' + ' style="top:55px">Path</span>' +
            ((vehicle.vehicle_type!="car") ? '<span class="sbutton" onclick="shareVehicle(\'' + vcallsign + '\')" style="top:85px">Share</span>' : '') +
-           ((vehicle.vehicle_type!="car" && newPosition.gps_alt > 1000 && vehicle.ascent_rate < 1) ? '<span class="sbutton" onclick="generateHysplit(\'' + vcallsign + '\')" style="top:115px">Hysplit</span>' : '') +
+           ((vehicle.vehicle_type!="car" && newPosition.gps_alt > 1000 && vehicle.ascent_rate < 1) ? '<span class="sbutton hysplit '+((vehicle.prediction_hysplit_visible) ? 'active' : '')+'" data-vcallsign="' + vcallsign + '" style="top:115px">Hysplit</span>' : '') +
            '<div class="left">' +
            '<dl>';
   var b    = '</dl>' +
@@ -1439,8 +1439,39 @@ function updateVehicleInfo(vcallsign, newPosition) {
   return true;
 }
 
-function generateHysplit(callsign) {
+function processHysplit(callsign, show) {
     var vehicle = vehicles[callsign];
+    if (show) {
+        if (Object.keys(vehicle["prediction_hysplit"]).length > 0 && vehicle["prediction_hysplit_age"] == vehicle.curr_position.gps_time) {
+            showHysplit(callsign);
+        } else {
+            generateHysplit(callsign);
+        }
+    } else {
+        hideHysplit(callsign);
+    }
+}
+
+function showHysplit(callsign) {
+    var vehicle = vehicles[callsign];
+    vehicle.prediction_hysplit_visible = true;
+    for(var prediction in vehicle["prediction_hysplit"]) {
+        map.addLayer(vehicle["prediction_hysplit"][prediction]);
+    }
+}
+
+function hideHysplit(callsign) {
+    var vehicle = vehicles[callsign];
+    vehicle.prediction_hysplit_visible = false;
+    for(var prediction in vehicle["prediction_hysplit"]) {
+        map.removeLayer(vehicle["prediction_hysplit"][prediction]);
+    }
+}
+
+function generateHysplit(callsign) {
+    hideHysplit(callsign)
+    var vehicle = vehicles[callsign];
+    vehicle.prediction_hysplit_visible = true;
     for (var alt = -1000; alt <= 1000; alt+=100) {
         createHysplit(callsign, alt);
     }
@@ -1469,12 +1500,17 @@ function createHysplit(callsign, adjustment) {
         url: url,
         dataType: "json",
         success: function(data) {
-            var path = [[vehicle.curr_position.gps_lat, vehicle.curr_position.gps_lon]];
+            var start = new L.LatLng(vehicle.curr_position.gps_lat, vehicle.curr_position.gps_lon);
+            var path = [start];
             for (let point in data.prediction[1].trajectory) {
-                path.push([data.prediction[1].trajectory[point].latitude, data.prediction[1].trajectory[point].longitude]);
+                var position = new L.LatLng(data.prediction[1].trajectory[point].latitude, data.prediction[1].trajectory[point].longitude)
+                path.push(position);
             }
             vehicle.prediction_hysplit[adjustment] = new L.Wrapped.Polyline(path);
-            vehicle.prediction_hysplit[adjustment].addTo(map)
+            vehicle.prediction_hysplit_age = vehicle.curr_position.gps_time;
+            if (vehicle.prediction_hysplit_visible) {
+                vehicle.prediction_hysplit[adjustment].addTo(map);
+            }
         }  
     });
 }
@@ -2389,6 +2425,8 @@ function addPosition(position) {
                             prediction_launch: null,
                             prediction_launch_polyline: null,
                             prediction_hysplit: {},
+                            prediction_hysplit_visible: false,
+                            prediction_hysplit_age: 0,
                             ascent_rate: 0.0,
                             horizontal_rate: 0.0,
                             max_alt: parseFloat(position.gps_alt),
@@ -2455,6 +2493,9 @@ function addPosition(position) {
             }
             if (map.hasLayer(vehicle_info["prediction_burst"])) { 
                 map.removeLayer(vehicle_info["prediction_burst"]);
+            }
+            for(var prediction in vehicle_info["prediction_hysplit"]) {
+                map.removeLayer(vehicle_info["prediction_hysplit"][prediction]);
             }
             try {
                 for(var p in vehicle_info.polyline) {
