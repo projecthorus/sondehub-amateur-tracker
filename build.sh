@@ -4,7 +4,7 @@
 echo -n "Compiling CSS... "
 cd css
 rm -f mobile.css
-cat base.css skeleton.css layout.css habitat-font.css main.css leaflet.css leaflet.fullscreen.css skewt.css > mobile.tmp
+cat base.css skeleton.css layout.css habitat-font.css main.css leaflet.css leaflet.fullscreen.css > mobile.tmp
 java -jar "../tools/yuicompressor-2.4.8.jar" --type=css mobile.tmp > mobile.css
 rm -f mobile.tmp
 cd ..
