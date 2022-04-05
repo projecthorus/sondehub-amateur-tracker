@@ -523,6 +523,22 @@ $(window).ready(function() {
         }
     });
 
+    $("#main").on('click','.row .data .sbutton.hysplit', function(event) {
+        event.stopPropagation();
+
+        var elm = $(this);
+        var name = elm.attr('data-vcallsign');
+
+        if(elm.hasClass("active")) {
+            elm.removeClass('active');
+            processHysplit(name, false);
+        }
+        else {
+            elm.addClass('active');
+            processHysplit(name, true);
+        }
+    });
+
     // reset nite-overlay and timebox when mouse goes out of the graph box
     $("#telemetry_graph").on('mouseout','.holder', function() {
         if(plot_crosshair_locked) return;

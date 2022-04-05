@@ -444,6 +444,12 @@ header .search form input[type='submit'] {
     text-align: center;
 }
 
+#main .row .data .sbutton.active {
+    background-color: #33b5e5;
+    border: 1px solid #33b5e5;
+    color: #fff;
+}
+
 #main .row .data .vbutton.active {
     background-color: #33b5e5;
     border: 1px solid #33b5e5;
