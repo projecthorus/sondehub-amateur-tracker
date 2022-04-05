@@ -1486,9 +1486,11 @@ function createHysplit(callsign, adjustment) {
     endTime.setHours(endTime.getHours() + 84);
     endTime = endTime.toISOString();
 
+    var lon = ((360 + (vehicle.curr_position.gps_lon % 360)) % 360)
+
     var url = "https://predict.cusf.co.uk/api/v1/?profile=float_profile"
         + "&launch_latitude=" + vehicle.curr_position.gps_lat
-        + "&launch_longitude=" + vehicle.curr_position.gps_lon
+        + "&launch_longitude=" + lon
         + "&launch_altitude=" + (altitude-1)
         + "&launch_datetime=" + vehicle.curr_position.gps_time
         + "&ascent_rate=0.1"
@@ -1503,7 +1505,17 @@ function createHysplit(callsign, adjustment) {
             var start = new L.LatLng(vehicle.curr_position.gps_lat, vehicle.curr_position.gps_lon);
             var path = [start];
             for (let point in data.prediction[1].trajectory) {
-                var position = new L.LatLng(data.prediction[1].trajectory[point].latitude, data.prediction[1].trajectory[point].longitude)
+                if (data.prediction[1].trajectory[point].latitude > 180.0) {
+                    var lat = data.prediction[1].trajectory[point].latitude - 360.0;
+                } else {
+                    var lat = data.prediction[1].trajectory[point].latitude;
+                }
+                if (data.prediction[1].trajectory[point].longitude > 180.0) {
+                    var lon = data.prediction[1].trajectory[point].longitude - 360.0;
+                } else {
+                    var lon = data.prediction[1].trajectory[point].longitude;
+                }
+                var position = new L.LatLng(lat, lon);
                 path.push(position);
             }
             vehicle.prediction_hysplit[adjustment] = new L.Wrapped.Polyline(path);
