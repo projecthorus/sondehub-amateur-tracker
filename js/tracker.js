@@ -2,7 +2,7 @@ var mission_id = 0;
 var position_id = 0;
 var newdata_url = "https://api.v2.sondehub.org/amateur/telemetry";
 var receivers_url = "https://api.v2.sondehub.org/listeners/telemetry";
-var predictions_url = "https://api.v2.sondehub.org/predictions?vehicles=";
+var predictions_url = "https://api.v2.sondehub.org/amateur/predictions?vehicles=";
 var launch_predictions_url = "https://api.v2.sondehub.org/predictions/reverse";
 
 var clientConnected = false;
