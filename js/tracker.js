@@ -1,9 +1,8 @@
 var mission_id = 0;
 var position_id = 0;
 var newdata_url = "https://api.v2.sondehub.org/amateur/telemetry";
-var receivers_url = "https://api.v2.sondehub.org/listeners/telemetry";
+var receivers_url = "https://api.v2.sondehub.org/amateur/listeners/telemetry";
 var predictions_url = "https://api.v2.sondehub.org/amateur/predictions?vehicles=";
-var launch_predictions_url = "https://api.v2.sondehub.org/predictions/reverse";
 
 var clientConnected = false;
 var clientActive = false;
@@ -22,7 +21,6 @@ var elm_uuid = 0;
 var receiver_names = [];
 var receivers = [];
 
-var launchPredictions = {};
 var stationMarkerLookup = {};
 var markerStationLookup = {};
 var predictionAjax = [];
@@ -1587,34 +1585,7 @@ function removePrediction(vcallsign) {
   }
 }
 
-function drawLaunchPrediction(vcallsign) {
-    var vehicle = vehicles[vcallsign];
-	var data = vehicle.prediction_launch.data;
 
-    var line = [];
-    var latlng = null;
-    var path_length = 0;
-
-    for(var i = 0, ii = data.length; i < ii; i++) {
-        latlng = new L.LatLng(data[i].lat, data[i].lon);
-        line.push(latlng);
-        if(i > 1) path_length += line[i-1].distanceTo(line[i]);
-    }
-
-    vehicle.prediction_launch_path = line;
-
-    vehicle.prediction_launch_polyline = new L.Wrapped.Polyline(line, {
-            color: balloon_colors[vehicle.color_index],
-            opacity: 0.4,
-            weight: 3,
-    }).addTo(map);
-
-    vehicle.prediction_launch_polyline.on('click', function (e) {
-        mapInfoBox_handle_prediction_path(e);
-    });
-
-    vehicle.prediction_launch_polyline.path_length = path_length;
-}
 
 function redrawPrediction(vcallsign) {
     var vehicle = vehicles[vcallsign];
@@ -3178,22 +3149,6 @@ function refreshPredictions() {
             periodical_predictions = setTimeout(refreshPredictions, 60 * 1000);
         }
     });
-
-    var data_str = "duration=" + wvar.mode + "&vehicles=" + encodeURIComponent(wvar.query);
-
-    ajax_predictions = $.ajax({
-        type: "GET",
-        url: launch_predictions_url,
-        data: data_str,
-        dataType: "json",
-        success: function(response, textStatus) {
-            updateLaunchPredictions(response);
-        },
-        error: function() {
-        },
-        complete: function(request, textStatus) {
-        }
-    });
 }
 
 var periodical, periodical_focus, periodical_focus_new, periodical_receivers, periodical_listeners;
@@ -3422,18 +3377,6 @@ function updateReceivers(r) {
     if(follow_vehicle !== null) drawLOSPaths(follow_vehicle);
 }
 
-function updateLaunchPredictions(r) {
-    for (serial in r) {
-        prediction = r[serial];
-        if(vehicles.hasOwnProperty(serial)) {
-            vehicle = vehicles[serial];
-            if (vehicle.prediction_launch == null) {
-                vehicle.prediction_launch = prediction;
-                drawLaunchPrediction(serial);
-            }
-        }
-    }
-}
 
 function updatePredictions(r) {
     if(!r) return;
