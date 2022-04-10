@@ -4,6 +4,7 @@
  */
 
 function formatData(data) {
+    var hideAprs = offline.get('opt_hide_aprs');
     var response = {};
     response.positions = {};
     var dataTemp = [];
@@ -57,7 +58,7 @@ function formatData(data) {
                         }
                     }
                     dataTempEntry.gps_alt = parseFloat((data[key][i].alt).toPrecision(8));
-                    if (dataTempEntry.gps_alt < 1500 && aprsflag) {
+                    if (dataTempEntry.gps_alt < 1500 && aprsflag && !hideAprs) {
                         continue;
                     }
                     dataTempEntry.gps_lat = parseFloat((data[key][i].lat).toPrecision(8));
