@@ -18,7 +18,7 @@ function formatData(data) {
                         for (let uploader in stations) {
                             dataTempEntry.callsign[stations[uploader]] = {};
                         }
-                    } else {
+                    } else if ("uplaoders" in data[key][i]){
                         for (let uploader in data[key][i].uploaders) {
                             uploader_callsign = data[key][i].uploaders[uploader].uploader_callsign;
                             dataTempEntry.callsign[uploader_callsign] = {};
@@ -32,6 +32,20 @@ function formatData(data) {
                                 dataTempEntry.callsign[uploader_callsign].frequency = +data[key][i].uploaders[uploader].frequency.toFixed(3);
                             }
                         }
+                    } else {
+                        uploader_callsign = data[key][i].uploader_callsign
+                        dataTempEntry.callsign[uploader_callsign] = {};
+
+                        if (data[key][i].snr) {
+                            dataTempEntry.callsign[uploader_callsign].snr = +data[key][i].snr.toFixed(1);
+                        }
+                        if (data[key][i].rssi) {
+                            dataTempEntry.callsign[uploader_callsign].rssi = +data[key][i].rssi.toFixed(1);
+                        }
+                        if (data[key][i].frequency) {
+                            dataTempEntry.callsign[uploader_callsign].frequency = +data[key][i].frequency.toFixed(3);
+                        }  
+
                     }
                     dataTempEntry.gps_alt = parseFloat((data[key][i].alt).toPrecision(8));
                     dataTempEntry.gps_lat = parseFloat((data[key][i].lat).toPrecision(8));
