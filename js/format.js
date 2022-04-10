@@ -34,7 +34,7 @@ function formatData(data) {
                         } 
                     }
                     for (let entry in data[key][i].uploaders) {
-                        if (data[key][i].uploaders[entry].software_name == "aprs") {
+                        if (data[key][i].software_name == "aprs") {
                             aprsflag = true;
                             var stations = data[key][i].uploaders[entry].uploader_callsign.split(",");
                             for (let uploader in stations) {
