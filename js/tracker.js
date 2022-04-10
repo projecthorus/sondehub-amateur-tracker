@@ -2975,7 +2975,6 @@ function refresh() {
         }
         clientActive = true;
         clearTimeout(periodical);
-        periodical = setTimeout(refresh, timer_seconds * 1000);
         ajax_inprogress = false;
     }
   });
