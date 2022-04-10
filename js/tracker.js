@@ -4,11 +4,15 @@ var newdata_url = "https://api.v2.sondehub.org/amateur/telemetry";
 var receivers_url = "https://api.v2.sondehub.org/amateur/listeners/telemetry";
 var predictions_url = "https://api.v2.sondehub.org/amateur/predictions?vehicles=";
 
+var livedata = "wss://ws-reader.v2.sondehub.org/";
+var clientID = "SondeHub-Tracker-" + Math.floor(Math.random() * 10000000000);
+var client = new Paho.Client(livedata, clientID);
 var clientConnected = false;
 var clientActive = false;
 var clientTopic;
 var messageRate = 0;
 var messageRateAverage = 10;
+
 
 var pledges = {};
 var pledges_loaded = false
@@ -678,6 +682,7 @@ function load() {
         });
 
         startAjax();
+        liveData();
     };
 
     L.NumberedDivIcon = L.Icon.extend({
@@ -3047,6 +3052,94 @@ function refreshSingleNew(serial) {
       }
     });
 }
+
+live_data_buffer = {positions:{position:[]}}
+function liveData() {
+    client.onConnectionLost = onConnectionLost;
+    client.onMessageArrived = onMessageArrived;
+
+    client.connect({onSuccess:onConnect,onFailure:connectionError,reconnect:true});
+
+    function onConnect() {
+        if (wvar.query && sondePrefix.indexOf(wvar.query) == -1) {
+            var topic = "amateur/" + wvar.query;
+            client.subscribe(topic);
+            clientTopic = topic;
+        } else {
+            client.subscribe("batch");
+            clientTopic = "batch";
+        }
+        clientConnected = true;
+        $("#stText").text("websocket |");
+    };
+
+    function connectionError(error) {
+        $("#stText").text("error |");
+        clientConnected = false;
+        clientActive = false;
+        if (!document.getElementById("stTimer").classList.contains('friendly-dtime') ) {
+            document.getElementById("stTimer").classList.add('friendly-dtime');
+            $("#updatedText").text(" Updated: ");
+        }
+        refresh();
+    };
+
+    function onConnectionLost(responseObject) {
+        if (responseObject.errorCode !== 0) {
+            clientConnected = false;
+            clientActive = false;
+            if (!document.getElementById("stTimer").classList.contains('friendly-dtime') ) {
+                document.getElementById("stTimer").classList.add('friendly-dtime');
+                $("#updatedText").text(" Updated: ");
+            }
+            refresh();
+        }
+    };
+
+    function onMessageArrived(message) {
+        messageRate += 1;
+        setTimeout(function(){
+            messageRate -= 1;
+          }, (1000 * messageRateAverage));
+        if ( document.getElementById("stTimer").classList.contains('friendly-dtime') ) {
+            document.getElementById("stTimer").classList.remove('friendly-dtime');
+        }
+        $("#stTimer").text(Math.round(messageRate/10) + " msg/s");
+        $("#updatedText").text(" ");
+        var dateNow = new Date().getTime();
+        try {
+            if (clientActive) {
+                var frame = JSON.parse(message.payloadString.toString());
+                if (wvar.query == "" || sondePrefix.indexOf(wvar.query) > -1 || wvar.query == frame.serial) {
+                    if (frame.length == null) {
+                        var tempDate = new Date(frame.time_received).getTime();
+                    } else {
+                        var tempDate = new Date(frame[frame.length - 1].time_received).getTime()
+                    }
+                    if ((dateNow - tempDate) < 30000) {
+                        var test = formatData(frame, true);
+                        if (clientActive) {
+                            live_data_buffer.positions.position.push.apply(live_data_buffer.positions.position,test.positions.position)
+                        }
+                        $("#stTimer").attr("data-timestamp", dateNow);
+                        $("#stText").text("websocket |");
+                    } else if ((dateNow - new Date(frame.time_received).getTime()) > 150000) {
+                        $("#stText").text("error |");
+                        refresh();
+                    } else {
+                        $("#stText").text("error |");
+                    }
+                }
+            }
+        }
+        catch(err) {}
+    };
+}
+
+setInterval(function(){
+    update(live_data_buffer);
+    live_data_buffer.positions.position=[];
+}, 200)
 
 function refreshPatreons() {
 
