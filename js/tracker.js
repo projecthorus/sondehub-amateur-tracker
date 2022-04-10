@@ -81,8 +81,8 @@ var modeList = [
     "1d",
     "3d"
 ];
-var modeDefault = "3h";
-var modeDefaultMobile = "1h";
+var modeDefault = "1d";
+var modeDefaultMobile = "1d";
 
 // order of map elements
 var Z_RANGE = 1;
@@ -483,6 +483,8 @@ function clean_refresh(text, force, history_step) {
     if(text == wvar.mode && !force) return false;
     stopAjax();
 
+    live_data_buffer.positions.position=[];
+
     if (clientActive) {
         clientActive = false;
         if (!document.getElementById("stTimer").classList.contains('friendly-dtime') ) {
@@ -491,6 +493,18 @@ function clean_refresh(text, force, history_step) {
         }
         $("#stText").text("");
     }
+
+    try {
+        client.unsubscribe(clientTopic);
+        if (wvar.query && sondePrefix.indexOf(wvar.query) == -1) {
+            var topic = "amateur/" + wvar.query;
+            client.subscribe(topic);
+            clientTopic = topic;
+        } else {
+            client.subscribe("amateur/#");
+            clientTopic = "amateur/#";
+        }
+    } catch (err) {}
 
     // reset mode if, invalid mode is specified
     if(modeList.indexOf(text) == -1) text = (is_mobile) ? modeDefaultMobile : modeDefault;
@@ -590,7 +604,7 @@ function load() {
         onAdd: function(map) {
             var div = L.DomUtil.create('div');
     
-            div.innerHTML = '<select name="timeperiod" id="timeperiod" style="width:auto !important;height:30px;" onchange="clean_refresh(this.value)"><option value="1h">1 hour</option><option value="3h" selected="selected">3 hours</option><option value="6h">6 hours</option><option value="12h">12 hours</option><option value="1d">1 day</option><option value="3d">3 days</option></select>';
+            div.innerHTML = '<select name="timeperiod" id="timeperiod" style="width:auto !important;height:30px;" onchange="clean_refresh(this.value)"><option value="0">Live Only</option><option value="1h">1 hour</option><option value="3h">3 hours</option><option value="6h">6 hours</option><option value="12h">12 hours</option><option value="1d" selected="selected">1 day</option><option value="3d">3 days</option></select>';
             div.innerHTML.onload = setTimeValue();
 
             return div;
@@ -826,8 +840,7 @@ function habitat_data(jsondata, alternative) {
     "spam": true,
     "battery_millivolts": true,
     "temperature_internal_x10": true,
-    "uplink_rssi_raw": true,
-    "comment": true
+    "uplink_rssi_raw": true
   };
 
   var suffixes = globalSuffixes;
@@ -1376,7 +1389,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
            '<img class="'+((vehicle.vehicle_type=="car")?'car':'')+'" src="'+image+'" />' +
            '<span class="vbutton path '+((vehicle.polyline_visible) ? 'active' : '')+'" data-vcallsign="'+vcallsign+'"' + ' style="top:'+(vehicle.image_src_size[1]+55)+'px">Path</span>' +
            ((vehicle.vehicle_type!="car") ? '<span class="sbutton" onclick="shareVehicle(\'' + vcallsign + '\')" style="top:'+(vehicle.image_src_size[1]+85)+'px">Share</span>' : '') +
-           ((vehicle.vehicle_type!="car" && newPosition.gps_alt > 1000 && vehicle.ascent_rate < 1) ? '<span class="sbutton hysplit '+((vehicle.prediction_hysplit_visible) ? 'active' : '')+'" data-vcallsign="' + vcallsign + '" style="top:'+(vehicle.image_src_size[1]+115)+'px">Hysplit</span>' : '') +
+           ((vehicle.vehicle_type!="car" && newPosition.gps_alt > 1000 && vehicle.ascent_rate < 1) ? '<span class="sbutton hysplit '+((vehicle.prediction_hysplit_visible) ? 'active' : '')+'" data-vcallsign="' + vcallsign + '" style="top:'+(vehicle.image_src_size[1]+115)+'px">Float</span>' : '') +
            '<div class="left">' +
            '<dl>';
   //mobile
@@ -1388,7 +1401,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
            '<img class="'+((vehicle.vehicle_type=="car")?'car':'')+'" src="'+image+'" />' +
            '<span class="vbutton path '+((vehicle.polyline_visible) ? 'active' : '')+'" data-vcallsign="'+vcallsign+'"' + ' style="top:55px">Path</span>' +
            ((vehicle.vehicle_type!="car") ? '<span class="sbutton" onclick="shareVehicle(\'' + vcallsign + '\')" style="top:85px">Share</span>' : '') +
-           ((vehicle.vehicle_type!="car" && newPosition.gps_alt > 1000 && vehicle.ascent_rate < 1) ? '<span class="sbutton hysplit '+((vehicle.prediction_hysplit_visible) ? 'active' : '')+'" data-vcallsign="' + vcallsign + '" style="top:115px">Hysplit</span>' : '') +
+           ((vehicle.vehicle_type!="car" && newPosition.gps_alt > 1000 && vehicle.ascent_rate < 1) ? '<span class="sbutton hysplit '+((vehicle.prediction_hysplit_visible) ? 'active' : '')+'" data-vcallsign="' + vcallsign + '" style="top:115px">Float</span>' : '') +
            '<div class="left">' +
            '<dl>';
   var b    = '</dl>' +

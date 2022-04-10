@@ -12,14 +12,30 @@ function formatData(data) {
             if (typeof data[key] === 'object') {
                 for (let i in data[key]) {
                     var dataTempEntry = {};
+                    var aprsflag = false;
                     dataTempEntry.callsign = {};
                     if (vehicles.hasOwnProperty(data[key][i].payload_callsign)) {
                         if (data[key][i].datetime == vehicles[data[key][i].payload_callsign].curr_position.gps_time) {
                             dataTempEntry = vehicles[data[key][i].payload_callsign].curr_position;
                         }
                     }
+                    if (!data[key][i].hasOwnProperty("uploaders")) {
+                        data[key][i].uploaders = [];
+                        data[key][i].uploaders[0] = {}
+                        data[key][i].uploaders[0].uploader_callsign = data[key][i].uploader_callsign;
+                        if (data[key][i].snr) {
+                            data[key][i].uploaders[0].snr = + data[key][i].snr.toFixed(1);
+                        }
+                        if (data[key][i].rssi) {
+                            data[key][i].uploaders[0].rssi = + data[key][i].rssi.toFixed(1);
+                        }
+                        if (data[key][i].frequency) {
+                            data[key][i].uploaders[0].frequency = + data[key][i].frequency.toFixed(3);
+                        } 
+                    }
                     for (let entry in data[key][i].uploaders) {
                         if (data[key][i].uploaders[entry].software_name == "aprs") {
+                            aprsflag = true;
                             var stations = data[key][i].uploaders[entry].uploader_callsign.split(",");
                             for (let uploader in stations) {
                                 dataTempEntry.callsign[stations[uploader]] = {};
@@ -41,6 +57,9 @@ function formatData(data) {
                         }
                     }
                     dataTempEntry.gps_alt = parseFloat((data[key][i].alt).toPrecision(8));
+                    if (dataTempEntry.gps_alt < 1500 && aprsflag) {
+                        continue;
+                    }
                     dataTempEntry.gps_lat = parseFloat((data[key][i].lat).toPrecision(8));
                     dataTempEntry.gps_lon = parseFloat((data[key][i].lon).toPrecision(8));
                     if (dataTempEntry.gps_lat == 0 && dataTempEntry.gps_lon == 0) {
@@ -53,7 +72,9 @@ function formatData(data) {
                     dataTempEntry.server_time = data[key][i].datetime;
                     dataTempEntry.vehicle = data[key][i].payload_callsign;
                     dataTempEntry.position_id = data[key][i].payload_callsign + "-" + data[key][i].datetime;
-                    dataTempEntry.data = {};
+                    if (!dataTempEntry.hasOwnProperty("data")) {
+                        dataTempEntry.data = {};
+                    }
                     if (data[key][i].hasOwnProperty("batt")) {
                         dataTempEntry.data.batt = +data[key][i].batt.toFixed(2);
                     }
