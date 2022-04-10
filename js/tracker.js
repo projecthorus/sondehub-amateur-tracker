@@ -3066,8 +3066,8 @@ function liveData() {
             client.subscribe(topic);
             clientTopic = topic;
         } else {
-            client.subscribe("batch");
-            clientTopic = "batch";
+            client.subscribe("amateur/#");
+            clientTopic = "amateur/#";
         }
         clientConnected = true;
         $("#stText").text("websocket |");
@@ -3109,12 +3109,12 @@ function liveData() {
         var dateNow = new Date().getTime();
         try {
             if (clientActive) {
-                var frame = JSON.parse(message.payloadString.toString());
-                if (wvar.query == "" || sondePrefix.indexOf(wvar.query) > -1 || wvar.query == frame.serial) {
+                var frame = [{"1":JSON.parse(message.payloadString.toString())}];
+                if (wvar.query == "" || sondePrefix.indexOf(wvar.query) > -1 || wvar.query == frame.payload_callsign) {
                     if (frame.length == null) {
                         var tempDate = new Date(frame.time_received).getTime();
                     } else {
-                        var tempDate = new Date(frame[frame.length - 1].time_received).getTime()
+                        var tempDate = new Date(frame[frame.length - 1]["1"].time_received).getTime()
                     }
                     if ((dateNow - tempDate) < 30000) {
                         var test = formatData(frame, true);
@@ -3123,7 +3123,7 @@ function liveData() {
                         }
                         $("#stTimer").attr("data-timestamp", dateNow);
                         $("#stText").text("websocket |");
-                    } else if ((dateNow - new Date(frame.time_received).getTime()) > 150000) {
+                    } else if ((dateNow - new Date(frame[0]["1"].time_received).getTime()) > 150000) {
                         $("#stText").text("error |");
                         refresh();
                     } else {
