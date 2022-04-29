@@ -81,8 +81,8 @@ var modeList = [
     "1d",
     "3d"
 ];
-var modeDefault = "1d";
-var modeDefaultMobile = "1d";
+var modeDefault = "12h";
+var modeDefaultMobile = "12h";
 
 // order of map elements
 var Z_RANGE = 1;
@@ -96,7 +96,9 @@ var Z_PAYLOAD = 1000002;
 var globalKeys = {
     "ascentrate": "Ascent Rate",
     "battery_percent": "Battery",
+    "temp": "Temperature",
     "temperature_external": "Temperature, External",
+    "ext_temperature": "Temperature, External",
     "pressure_internal": "Pressure, Internal",
     "voltage_solar_1": "Voltage, Solar 1",
     "voltage_solar_2": "Voltage, Solar 2",
@@ -116,24 +118,33 @@ var globalKeys = {
     "batt": "Battery Voltage",
     "sats": "GNSS SVs Used",
     "humidity": "Relative Humidity",
+    "ext_humidity": "Relative Humidity, External",
+    "ext_pressure": "Pressure, External",
     "subtype": "Sonde Sub-type",
     "frequency": "Frequency",
     "frequency_tx": "TX Frequency",
     "manufacturer": "Manufacturer",
     "type": "Sonde Type",
-    "burst_timer": "Burst Timer"
+    "burst_timer": "Burst Timer",
+    "ascent_rate": "Ascent Rate",
+    "pyro_voltage": "Cutdown Voltage",
+    "noise_floor_dbm": "Radio Noise Floor",
 };
 
 var globalSuffixes = {
     "current": " A",
     "battery": " V",
     "batt": " V",
+    "ascent_rate": " m/s",
     "solar_panel": " V",
+    "temp": "&deg;C",
     "temperature": "&deg;C",
     "temperature_internal": "&deg;C",
     "temperature_external": "&deg;C",
+    "ext_temperature": "&deg;C",
     "temperature_radio": "&deg;C",
     "pressure": " hPa",
+    "ext_pressure": " hPa",
     "voltage_solar_1": " V",
     "voltage_solar_2": " V",
     "battery_percent": "%",
@@ -147,6 +158,7 @@ var globalSuffixes = {
     "humidity": " %",
     "frequency": " MHz",
     "frequency_tx": " MHz",
+    "noise_floor_dbm": " dBm",
     "spam": ""
 };
 
