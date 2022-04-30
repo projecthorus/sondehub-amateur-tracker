@@ -156,6 +156,7 @@ var globalSuffixes = {
     "iss_elevation": "&deg;",
     "light_intensity": " lx",
     "humidity": " %",
+    "ext_humidity": " %",
     "frequency": " MHz",
     "frequency_tx": " MHz",
     "noise_floor_dbm": " dBm",
@@ -845,7 +846,9 @@ function habitat_data(jsondata, alternative) {
   var keys = globalKeys;
 
   var tooltips = {
-    "burst_timer": "If active, this indicates the time (HH:MM:SS) until the radiosonde will automatically power-off."
+    "burst_timer": "If active, this indicates the time (HH:MM:SS) until the radiosonde will automatically power-off.",
+    "frequency": "Estimated frequency of the transmitter, may be impacted by receiver frequency inaccuracies.",
+    "ascent_rate": "Instantaneous ascent rate, provided by the payload."
   }
 
   var hide_keys = {

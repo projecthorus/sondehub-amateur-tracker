@@ -31,7 +31,7 @@ function formatData(data) {
                             data[key][i].uploaders[0].rssi = + data[key][i].rssi.toFixed(1);
                         }
                         if (data[key][i].frequency) {
-                            data[key][i].uploaders[0].frequency = + data[key][i].frequency.toFixed(3);
+                            data[key][i].uploaders[0].frequency = + data[key][i].frequency.toFixed(4);
                         } 
                     }
                     for (let entry in data[key][i].uploaders) {
@@ -52,7 +52,7 @@ function formatData(data) {
                                 dataTempEntry.callsign[uploader_callsign].rssi = + data[key][i].uploaders[entry].rssi.toFixed(1);
                             }
                             if (data[key][i].uploaders[entry].frequency) {
-                                dataTempEntry.callsign[uploader_callsign].frequency = + data[key][i].uploaders[entry].frequency.toFixed(3);
+                                dataTempEntry.callsign[uploader_callsign].frequency = + data[key][i].uploaders[entry].frequency.toFixed(4);
                             }  
     
                         }
@@ -76,11 +76,18 @@ function formatData(data) {
                     if (!dataTempEntry.hasOwnProperty("data")) {
                         dataTempEntry.data = {};
                     }
+
+                    // Cleanup of some fields, limiting precision, formatting. etc.
+                    // Currently this section copies over specific fields. It should be changed
+                    // to initially copy over all fields that have not already been included,
+                    // Then apply formatting to some 'known' fields.
+
+                    // Fairly common fields
                     if (data[key][i].hasOwnProperty("batt")) {
                         dataTempEntry.data.batt = +data[key][i].batt.toFixed(2);
                     }
                     if (data[key][i].hasOwnProperty("frequency")) {
-                        dataTempEntry.data.frequency = +data[key][i].frequency.toFixed(3);
+                        dataTempEntry.data.frequency = +data[key][i].frequency.toFixed(4);
                     }
                     if (data[key][i].hasOwnProperty("tx_frequency")) {
                         dataTempEntry.data.frequency_tx = +data[key][i].tx_frequency.toFixed(3);
@@ -95,14 +102,43 @@ function formatData(data) {
                         dataTempEntry.data.sats = data[key][i].sats;
                     }
                     if (data[key][i].hasOwnProperty("temp")) {
-                        dataTempEntry.data.temperature_external = data[key][i].temp;
+                        dataTempEntry.data.temp = data[key][i].temp;
                     }
                     if (data[key][i].hasOwnProperty("comment")) {
                         dataTempEntry.data.comment = data[key][i].comment;
                     }
+
+                    // Horus Binary V2 Fields
+                    if (data[key][i].hasOwnProperty("ascent_rate")) {
+                        // Limit to 1 decimal place.
+                        dataTempEntry.data.ascent_rate = +data[key][i].ascent_rate.toFixed(1);
+                    }
+                    if (data[key][i].hasOwnProperty("ext_pressure")) {
+                        dataTempEntry.data.ext_pressure = data[key][i].ext_pressure;
+                    }
+                    if (data[key][i].hasOwnProperty("ext_humidity")) {
+                        dataTempEntry.data.ext_humidity = data[key][i].ext_humidity;
+                    }
+                    if (data[key][i].hasOwnProperty("ext_temperature")) {
+                        dataTempEntry.data.ext_temperature = data[key][i].ext_temperature;
+                    }
+
+                    // Horus LoRa Fields
+                    if (data[key][i].hasOwnProperty("pyro_voltage")) {
+                        dataTempEntry.data.pyro_voltage = +data[key][i].pyro_voltage.toFixed(2);
+                    }
+                    if (data[key][i].hasOwnProperty("noise_floor_dbm")) {
+                        dataTempEntry.data.noise_floor_dbm = data[key][i].noise_floor_dbm;
+                    }
+                    if (data[key][i].hasOwnProperty("rx_pkt_count")) {
+                        dataTempEntry.data.rx_pkt_count = data[key][i].rx_pkt_count;
+                    }
+
+                    // Metadata added on by receiver applications.
                     if (data[key][i].hasOwnProperty("modulation")) {
                         dataTempEntry.data.modulation = data[key][i].modulation;
                     }
+
                     dataTemp.push(dataTempEntry);
                 }
             }
