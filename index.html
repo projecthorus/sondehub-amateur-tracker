@@ -268,15 +268,23 @@
     </div>
     <div id="userbox" style="display: none" class="flatpage">
         <div class="slimContainer">
-            <h2><i class="icon-user rfloat"></i>User</h2>
+            <h2><i class="icon-user rfloat"></i>Prediction Settings</h2>
+            Only use this tab if your the operator of a balloon launch.
             <hr>
-            <p id="login-prompt">
-                <a href="" id="login_url">Click here to login.</a>
-            </p>
-            <p>
-                <a onclick="do_a_thing()">Click here to do a thing</a>
-            </p>
+            <div id="update-flightdocs" style="display: none">
+                <form action="javascript:;">
+                    Callsign (case sensitive):<br /> <input id="flight_doc_payload_callsign" type="text"><br />
+                    Peak altitude:<br /> <input id="flight_doc_peak_altitude" type="text"><br />
+                    Descent rate:<br /> <input id="flight_doc_descent_rate" type="text"><br />
+                    Ascent rate:<br /> <input id="flight_doc_ascent_rate" type="text"><br />
+                    Float expected:<br /> <input id="flight_doc_float_expected" type="checkbox"><br />
+                    <input type="submit" onclick="update_flight_doc()">
+                </form>
+            </div>
             <p id="payload-update-results">
+            </p>
+            <p id="login-prompt">
+                <a href="" id="login_url">Login</a>
             </p>
         
         

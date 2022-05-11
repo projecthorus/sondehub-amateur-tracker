@@ -77,7 +77,7 @@
 .icon-daylight:before         { content: "\f008"; }
 .icon-settings:before         { content: "\f010"; }
 .icon-user:before             { 
-  content: "🔒"; 
+  content: "🎈"; 
   color: transparent;  
   text-shadow: 0 0 0 white;
   line-height: 1;
