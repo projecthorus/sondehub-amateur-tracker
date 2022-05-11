@@ -27,9 +27,31 @@ AWS.config.credentials.get(function(){
         document.getElementById("login_url").innerText = "Logout"
         document.getElementById("login_url").href="javascript:logout()"
         document.getElementById("update-flightdocs").style.display = "block"
+        document.getElementById("prediction_settings_message").innerText = "Use this form to configure predictions for your launch. Please only use this for your own launches. Callsigns must match your payload callsigns exactly (case sensitive)."
     }
 });
-
+function query_flight_doc(){
+    var payload_callsign = document.getElementById("flight_doc_payload_callsign").value
+    fetch("https://api.v2.sondehub.org/amateur/flightdoc/"+payload_callsign).then(
+        function(response){
+            if (response.ok) {
+                response.text().then(function(x) {
+                    var data = JSON.parse(x)
+                    if (data.float_expected) {
+                        document.getElementById("flight_doc_float_expected").checked = true
+                    } else {
+                        document.getElementById("flight_doc_float_expected").checked = false
+                    }
+                    document.getElementById("flight_doc_peak_altitude").value = data.peak_altitude
+                    document.getElementById("flight_doc_descent_rate").value = data.descent_rate
+                    document.getElementById("flight_doc_ascent_rate").value = data.ascent_rate
+                })
+            } else {
+                document.getElementById("payload-update-results").textContent = "Could not load payload data"
+            }
+        }
+    )
+}
 function logout(){
     logout_url = "https://auth.v2.sondehub.org/logout?client_id=21dpr4kth8lonk2rq803loh5oa&response_type=token&logout_uri=" + window.location.protocol + "//" + window.location.host
     sessionStorage.removeItem("id_token")

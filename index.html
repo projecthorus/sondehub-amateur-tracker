@@ -268,11 +268,14 @@
     <div id="prediction_settingsbox" style="display: none" class="flatpage">
         <div class="slimContainer">
             <h2>Prediction Settings</h2>
-            Only use this tab if your the operator of a balloon launch.
+            <p id="prediction_settings_message">
+                Login to configure per-payload flight path prediction parameters.
+            </p>
             <hr>
             <div id="update-flightdocs" style="display: none">
                 <form action="javascript:;">
                     Callsign (case sensitive):<br /> <input id="flight_doc_payload_callsign" type="text"><br />
+                    <button type="button" onclick="query_flight_doc()">Query</button><br />
                     Peak altitude:<br /> <input id="flight_doc_peak_altitude" type="text"><br />
                     Descent rate:<br /> <input id="flight_doc_descent_rate" type="text"><br />
                     Ascent rate:<br /> <input id="flight_doc_ascent_rate" type="text"><br />
