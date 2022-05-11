@@ -905,8 +905,6 @@ function habitat_data(jsondata, alternative) {
         }
     }
 
-    console.log(array);
-
     for(var i = 0, ii = array.length; i < ii; i++) {
       var k = array[i][0]; // key
       var v = array[i][1]; // value
@@ -3018,7 +3016,7 @@ function refresh() {
         if (wvar.query != null && JSON.stringify(data).indexOf(wvar.query) == -1) {
             refreshSingle(wvar.query);
         } else {
-            response = formatData(data, false);
+            response = formatData(data);
             update(response, true);   
             $("#stTimer").attr("data-timestamp", response.fetch_timestamp);
         }
@@ -3058,7 +3056,7 @@ function refreshSingle(serial) {
       url: data_url,
       dataType: "json",
       success: function(data, textStatus) {
-        response = formatData(data, false);
+        response = formatData(data);
         update(response, true);
         $("#stText").text("");
       },
@@ -3099,7 +3097,7 @@ function refreshSingleNew(serial) {
       data: data_str,
       dataType: "json",
       success: function(data, textStatus) {
-        response = formatData(data, false);
+        response = formatData(data);
         update(response, true);
       },
       error: function() {
@@ -3176,7 +3174,7 @@ function liveData() {
                         var tempDate = new Date(frame[frame.length - 1]["1"].time_received).getTime()
                     }
                     if ((dateNow - tempDate) < 30000) {
-                        var test = formatData(frame, true);
+                        var test = formatData(frame);
                         if (clientActive) {
                             live_data_buffer.positions.position.push.apply(live_data_buffer.positions.position,test.positions.position)
                         }

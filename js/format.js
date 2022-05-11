@@ -47,7 +47,9 @@ function formatData(data) {
                     var dataTempEntry = {};
                     var aprsflag = false;
                     dataTempEntry.callsign = {};
+                    maximumAltitude = 0;
                     if (vehicles.hasOwnProperty(data[key][i].payload_callsign)) {
+                        maximumAltitude = vehicles[data[key][i].payload_callsign].max_alt;
                         if (data[key][i].datetime == vehicles[data[key][i].payload_callsign].curr_position.gps_time) {
                             dataTempEntry = vehicles[data[key][i].payload_callsign].curr_position;
                         }
@@ -90,7 +92,10 @@ function formatData(data) {
                         }
                     }
                     dataTempEntry.gps_alt = parseFloat((data[key][i].alt).toPrecision(8));
-                    if (dataTempEntry.gps_alt < 1500 && aprsflag && !hideAprs) {
+                    if (dataTempEntry.gps_alt > maximumAltitude) {
+                        maximumAltitude = dataTempEntry.gps_alt;
+                    }
+                    if (maximumAltitude < 1500 && aprsflag && !hideAprs) {
                         continue;
                     }
                     dataTempEntry.gps_lat = parseFloat((data[key][i].lat).toPrecision(8));
