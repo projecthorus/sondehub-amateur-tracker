@@ -979,3 +979,10 @@ header .search form input[type='submit'] {
     text-align: center;
     padding: 10px;
 }
+/* predictor settings pane */ 
+.prediction_settings { 
+    background-image: url("../glyphs/icon-balloon.svg");
+    background-repeat: no-repeat;
+    background-size: 50%;
+    background-position: center;
+  }
