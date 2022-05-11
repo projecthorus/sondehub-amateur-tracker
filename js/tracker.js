@@ -122,7 +122,7 @@ var globalKeys = {
     "ext_pressure": "Pressure, External",
     "subtype": "Sonde Sub-type",
     "frequency": "Frequency",
-    "frequency_tx": "TX Frequency",
+    "tx_frequency": "TX Frequency",
     "manufacturer": "Manufacturer",
     "type": "Sonde Type",
     "burst_timer": "Burst Timer",
@@ -158,10 +158,23 @@ var globalSuffixes = {
     "humidity": " %",
     "ext_humidity": " %",
     "frequency": " MHz",
-    "frequency_tx": " MHz",
+    "tx_frequency": " MHz",
     "noise_floor_dbm": " dBm",
     "spam": ""
 };
+
+var keyOrder = [
+    "ascent_rate",
+    "batt",
+    "frequency",
+    "tx_frequency",
+    "humidity",
+    "pressure",
+    "sats",
+    "temp",
+    "comment",
+    "modulation"
+]
 
 // localStorage vars
 var ls_receivers = false;
@@ -866,24 +879,33 @@ function habitat_data(jsondata, alternative) {
 
     var data = (typeof jsondata === "string") ? $.parseJSON(jsondata) : jsondata;
     var array = [];
+    var tempArray = [];
     var output = "";
     var txFreq = false
 
     if(Object.keys(data).length === 0) return "";
 
-    if ("frequency_tx" in data) {
+    if ("tx_frequency" in data) {
         txFreq = true
     }
 
-    for(var key in data) {
-        if (key === "frequency" && txFreq) {} else {
-            array.push([key, data[key]]);
+    for (var field in keyOrder) {
+        if (keyOrder[field] in data) {
+            if (keyOrder[field] === "frequency" && txFreq) {} else {
+                array.push([keyOrder[field], data[keyOrder[field]]]);
+                tempArray.push(keyOrder[field]);
+            }
         }
     }
 
-    //array.sort(function(a, b) {
-    //    return a[0].localeCompare(b[0]);
-    //});
+    for (var key in data) {
+        if (!tempArray.includes(key)) {
+            array.push([key, data[key]]);
+            tempArray.push(key);
+        }
+    }
+
+    console.log(array);
 
     for(var i = 0, ii = array.length; i < ii; i++) {
       var k = array[i][0]; // key
