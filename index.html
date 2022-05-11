@@ -42,6 +42,7 @@
             </div>
             <ol class="nav noselect">
                 <li class="home"><i class="icon-habhub"></i></li>
+                <li class="prediction_settings"><i></i></li>
                 <li class="chasecar" style="display: none"><i class="icon-car"></i></li>
                 <li class="settings"><i class="icon-settings"></i></li>
                 <li class="weather">
@@ -264,6 +265,33 @@
             <hr>
         </div>
     </div>
+    <div id="prediction_settingsbox" style="display: none" class="flatpage">
+        <div class="slimContainer">
+            <h2>Prediction Settings</h2>
+            <p id="prediction_settings_message">
+                Login to configure per-payload flight path prediction parameters.
+            </p>
+            <hr>
+            <div id="update-flightdocs" style="display: none">
+                <form action="javascript:;">
+                    Callsign (case sensitive):<br /> <input id="flight_doc_payload_callsign" type="text"><br />
+                    <button type="button" onclick="query_flight_doc()">Query</button><br />
+                    Peak altitude:<br /> <input id="flight_doc_peak_altitude" type="text"><br />
+                    Descent rate:<br /> <input id="flight_doc_descent_rate" type="text"><br />
+                    Ascent rate:<br /> <input id="flight_doc_ascent_rate" type="text"><br />
+                    Float expected:<br /> <input id="flight_doc_float_expected" type="checkbox"><br />
+                    <input type="submit" onclick="update_flight_doc()">
+                </form>
+            </div>
+            <p id="payload-update-results">
+            </p>
+            <p id="login-prompt">
+                <a href="" id="login_url">Login</a>
+            </p>
+        
+        
+        </div>
+    </div>
     <div id="homebox" style="width:0px;height:0px"></div>
     <div id="mapscreen">
         <div id="timebox" class="present slickbox animate" style="display: none">
@@ -305,6 +333,7 @@
     </div>
     <!-- Was 3.31-->
     <script type="text/javascript" language="javascript" src="https://xc5dqkj2cgb1.statuspage.io/embed/script.js" async defer></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1130.0.min.js"></script>
     <script type="text/javascript" language="javascript" src="js/leaflet.js"></script>
     <script type="text/javascript" language="javascript" src="js/Leaflet.fullscreen.min.js"></script>
     <script type="text/javascript" language="javascript" src="js/L.Terminator.js"></script>

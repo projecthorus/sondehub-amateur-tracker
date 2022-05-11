@@ -969,3 +969,20 @@ header .search form input[type='submit'] {
     }
 }
 
+/* login button */
+#login_url {
+    display: block;
+    background-color: #33b5e5;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px;
+}
+/* predictor settings pane */ 
+.prediction_settings { 
+    background-image: url("../glyphs/icon-balloon.svg");
+    background-repeat: no-repeat;
+    background-size: 50%;
+    background-position: center;
+  }
