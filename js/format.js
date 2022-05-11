@@ -1,7 +1,39 @@
-/* SondeHub Tracker Format Incoming Data
+/* SondeHub Amateur Tracker Format Incoming Data
  *
  * Author: Luke Prior
  */
+
+var excludedFields = [
+    "payload_callsign", 
+    "uploader_callsign", 
+    "software_version", 
+    "position", 
+    "user-agent", 
+    "uploaders", 
+    "snr", 
+    "rssi", 
+    "software_name", 
+    "alt", 
+    "lat", 
+    "lon", 
+    "heading", 
+    "datetime", 
+    "payload_callsign", 
+    "path", 
+    "time_received",
+    "frame",
+    "uploader_alt",
+    "uploader_position",
+    "uploader_radio",
+    "uploader_antenna",
+    "raw"
+];
+
+var uniqueKeys = {
+    "batt": {"precision": 2},
+    "frequency": {"precision": 4},
+    "tx_frequency": {"precision": 4}
+}
 
 function formatData(data) {
     var hideAprs = offline.get('opt_hide_aprs');
@@ -15,7 +47,9 @@ function formatData(data) {
                     var dataTempEntry = {};
                     var aprsflag = false;
                     dataTempEntry.callsign = {};
+                    maximumAltitude = 0;
                     if (vehicles.hasOwnProperty(data[key][i].payload_callsign)) {
+                        maximumAltitude = vehicles[data[key][i].payload_callsign].max_alt;
                         if (data[key][i].datetime == vehicles[data[key][i].payload_callsign].curr_position.gps_time) {
                             dataTempEntry = vehicles[data[key][i].payload_callsign].curr_position;
                         }
@@ -58,7 +92,10 @@ function formatData(data) {
                         }
                     }
                     dataTempEntry.gps_alt = parseFloat((data[key][i].alt).toPrecision(8));
-                    if (dataTempEntry.gps_alt < 1500 && aprsflag && !hideAprs) {
+                    if (dataTempEntry.gps_alt > maximumAltitude) {
+                        maximumAltitude = dataTempEntry.gps_alt;
+                    }
+                    if (maximumAltitude < 1500 && aprsflag && !hideAprs) {
                         continue;
                     }
                     dataTempEntry.gps_lat = parseFloat((data[key][i].lat).toPrecision(8));
@@ -77,66 +114,17 @@ function formatData(data) {
                         dataTempEntry.data = {};
                     }
 
-                    // Cleanup of some fields, limiting precision, formatting. etc.
-                    // Currently this section copies over specific fields. It should be changed
-                    // to initially copy over all fields that have not already been included,
-                    // Then apply formatting to some 'known' fields.
+                    // Automatically add all remaining fields as data excluding excluded fields
 
-                    // Fairly common fields
-                    if (data[key][i].hasOwnProperty("batt")) {
-                        dataTempEntry.data.batt = +data[key][i].batt.toFixed(2);
-                    }
-                    if (data[key][i].hasOwnProperty("frequency")) {
-                        dataTempEntry.data.frequency = +data[key][i].frequency.toFixed(4);
-                    }
-                    if (data[key][i].hasOwnProperty("tx_frequency")) {
-                        dataTempEntry.data.frequency_tx = +data[key][i].tx_frequency.toFixed(3);
-                    }
-                    if (data[key][i].hasOwnProperty("humidity")) {
-                        dataTempEntry.data.humidity = data[key][i].humidity;
-                    }
-                    if (data[key][i].hasOwnProperty("pressure")) {
-                        dataTempEntry.data.pressure = data[key][i].pressure;
-                    }
-                    if (data[key][i].hasOwnProperty("sats")) {
-                        dataTempEntry.data.sats = data[key][i].sats;
-                    }
-                    if (data[key][i].hasOwnProperty("temp")) {
-                        dataTempEntry.data.temp = data[key][i].temp;
-                    }
-                    if (data[key][i].hasOwnProperty("comment")) {
-                        dataTempEntry.data.comment = data[key][i].comment;
-                    }
-
-                    // Horus Binary V2 Fields
-                    if (data[key][i].hasOwnProperty("ascent_rate")) {
-                        // Limit to 1 decimal place.
-                        dataTempEntry.data.ascent_rate = +data[key][i].ascent_rate.toFixed(1);
-                    }
-                    if (data[key][i].hasOwnProperty("ext_pressure")) {
-                        dataTempEntry.data.ext_pressure = data[key][i].ext_pressure;
-                    }
-                    if (data[key][i].hasOwnProperty("ext_humidity")) {
-                        dataTempEntry.data.ext_humidity = data[key][i].ext_humidity;
-                    }
-                    if (data[key][i].hasOwnProperty("ext_temperature")) {
-                        dataTempEntry.data.ext_temperature = data[key][i].ext_temperature;
-                    }
-
-                    // Horus LoRa Fields
-                    if (data[key][i].hasOwnProperty("pyro_voltage")) {
-                        dataTempEntry.data.pyro_voltage = +data[key][i].pyro_voltage.toFixed(2);
-                    }
-                    if (data[key][i].hasOwnProperty("noise_floor_dbm")) {
-                        dataTempEntry.data.noise_floor_dbm = data[key][i].noise_floor_dbm;
-                    }
-                    if (data[key][i].hasOwnProperty("rx_pkt_count")) {
-                        dataTempEntry.data.rx_pkt_count = data[key][i].rx_pkt_count;
-                    }
-
-                    // Metadata added on by receiver applications.
-                    if (data[key][i].hasOwnProperty("modulation")) {
-                        dataTempEntry.data.modulation = data[key][i].modulation;
+                    for (let field in data[key][i]) {
+                        if (excludedFields.includes(field)) {
+                            continue;
+                        }
+                        if (uniqueKeys.hasOwnProperty(field)) {
+                            dataTempEntry.data[field] = data[key][i][field].toFixed(uniqueKeys[field].precision);
+                        } else {
+                            dataTempEntry.data[field] = data[key][i][field];
+                        }
                     }
 
                     dataTemp.push(dataTempEntry);

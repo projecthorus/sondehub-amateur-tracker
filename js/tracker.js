@@ -122,7 +122,7 @@ var globalKeys = {
     "ext_pressure": "Pressure, External",
     "subtype": "Sonde Sub-type",
     "frequency": "Frequency",
-    "frequency_tx": "TX Frequency",
+    "tx_frequency": "TX Frequency",
     "manufacturer": "Manufacturer",
     "type": "Sonde Type",
     "burst_timer": "Burst Timer",
@@ -158,10 +158,23 @@ var globalSuffixes = {
     "humidity": " %",
     "ext_humidity": " %",
     "frequency": " MHz",
-    "frequency_tx": " MHz",
+    "tx_frequency": " MHz",
     "noise_floor_dbm": " dBm",
     "spam": ""
 };
+
+var keyOrder = [
+    "ascent_rate",
+    "batt",
+    "frequency",
+    "tx_frequency",
+    "humidity",
+    "pressure",
+    "sats",
+    "temp",
+    "comment",
+    "modulation"
+]
 
 // localStorage vars
 var ls_receivers = false;
@@ -866,24 +879,31 @@ function habitat_data(jsondata, alternative) {
 
     var data = (typeof jsondata === "string") ? $.parseJSON(jsondata) : jsondata;
     var array = [];
+    var tempArray = [];
     var output = "";
     var txFreq = false
 
     if(Object.keys(data).length === 0) return "";
 
-    if ("frequency_tx" in data) {
+    if ("tx_frequency" in data) {
         txFreq = true
     }
 
-    for(var key in data) {
-        if (key === "frequency" && txFreq) {} else {
-            array.push([key, data[key]]);
+    for (var field in keyOrder) {
+        if (keyOrder[field] in data) {
+            if (keyOrder[field] === "frequency" && txFreq) {} else {
+                array.push([keyOrder[field], data[keyOrder[field]]]);
+                tempArray.push(keyOrder[field]);
+            }
         }
     }
 
-    //array.sort(function(a, b) {
-    //    return a[0].localeCompare(b[0]);
-    //});
+    for (var key in data) {
+        if (!tempArray.includes(key)) {
+            array.push([key, data[key]]);
+            tempArray.push(key);
+        }
+    }
 
     for(var i = 0, ii = array.length; i < ii; i++) {
       var k = array[i][0]; // key
@@ -1404,7 +1424,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
            '<img class="'+((vehicle.vehicle_type=="car")?'car':'')+'" src="'+image+'" />' +
            '<span class="vbutton path '+((vehicle.polyline_visible) ? 'active' : '')+'" data-vcallsign="'+vcallsign+'"' + ' style="top:'+(vehicle.image_src_size[1]+55)+'px">Path</span>' +
            ((vehicle.vehicle_type!="car") ? '<span class="sbutton" onclick="shareVehicle(\'' + vcallsign + '\')" style="top:'+(vehicle.image_src_size[1]+85)+'px">Share</span>' : '') +
-           ((vehicle.vehicle_type!="car" && newPosition.gps_alt > 1000 && vehicle.ascent_rate < 1) ? '<span class="sbutton hysplit '+((vehicle.prediction_hysplit_visible) ? 'active' : '')+'" data-vcallsign="' + vcallsign + '" style="top:'+(vehicle.image_src_size[1]+115)+'px">Float</span>' : '') +
+           ((vehicle.vehicle_type!="car" && newPosition.gps_alt > 5000 && vehicle.ascent_rate < 1 && vehicle.ascent_rate > -1) ? '<span class="sbutton hysplit '+((vehicle.prediction_hysplit_visible) ? 'active' : '')+'" data-vcallsign="' + vcallsign + '" style="top:'+(vehicle.image_src_size[1]+115)+'px">Float</span>' : '') +
            '<div class="left">' +
            '<dl>';
   //mobile
@@ -1416,7 +1436,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
            '<img class="'+((vehicle.vehicle_type=="car")?'car':'')+'" src="'+image+'" />' +
            '<span class="vbutton path '+((vehicle.polyline_visible) ? 'active' : '')+'" data-vcallsign="'+vcallsign+'"' + ' style="top:55px">Path</span>' +
            ((vehicle.vehicle_type!="car") ? '<span class="sbutton" onclick="shareVehicle(\'' + vcallsign + '\')" style="top:85px">Share</span>' : '') +
-           ((vehicle.vehicle_type!="car" && newPosition.gps_alt > 1000 && vehicle.ascent_rate < 1) ? '<span class="sbutton hysplit '+((vehicle.prediction_hysplit_visible) ? 'active' : '')+'" data-vcallsign="' + vcallsign + '" style="top:115px">Float</span>' : '') +
+           ((vehicle.vehicle_type!="car" && newPosition.gps_alt > 5000 && vehicle.ascent_rate < 1 && vehicle.ascent_rate > -1) ? '<span class="sbutton hysplit '+((vehicle.prediction_hysplit_visible) ? 'active' : '')+'" data-vcallsign="' + vcallsign + '" style="top:115px">Float</span>' : '') +
            '<div class="left">' +
            '<dl>';
   var b    = '</dl>' +
@@ -1513,7 +1533,17 @@ function createHysplit(callsign, adjustment) {
 
     var altitude = Math.round(vehicle.curr_position.gps_alt) + adjustment;
 
-    var endTime = new Date(Date.parse(vehicle.curr_position.gps_time));
+    var startTime = new Date(Date.parse(vehicle.curr_position.gps_time.replace("Z","")));
+    //max is 8h back so need to catch is older
+    var nowTime = new Date();
+    var timeDifference = nowTime - startTime;
+    if (timeDifference > 28800000) {
+        nowTime.setHours(nowTime.getHours() - 8);
+        startTime = nowTime;
+    }
+    startTime = startTime.toISOString();
+
+    var endTime = new Date(Date.parse(vehicle.curr_position.gps_time.replace("Z","")));
     endTime.setHours(endTime.getHours() + 84);
     endTime = endTime.toISOString();
 
@@ -1523,7 +1553,7 @@ function createHysplit(callsign, adjustment) {
         + "&launch_latitude=" + vehicle.curr_position.gps_lat
         + "&launch_longitude=" + lon
         + "&launch_altitude=" + (altitude-1)
-        + "&launch_datetime=" + vehicle.curr_position.gps_time
+        + "&launch_datetime=" + startTime
         + "&ascent_rate=0.1"
         + "&float_altitude=" + altitude
         + "&stop_datetime=" + endTime;
@@ -2986,7 +3016,7 @@ function refresh() {
         if (wvar.query != null && JSON.stringify(data).indexOf(wvar.query) == -1) {
             refreshSingle(wvar.query);
         } else {
-            response = formatData(data, false);
+            response = formatData(data);
             update(response, true);   
             $("#stTimer").attr("data-timestamp", response.fetch_timestamp);
         }
@@ -3026,7 +3056,7 @@ function refreshSingle(serial) {
       url: data_url,
       dataType: "json",
       success: function(data, textStatus) {
-        response = formatData(data, false);
+        response = formatData(data);
         update(response, true);
         $("#stText").text("");
       },
@@ -3067,7 +3097,7 @@ function refreshSingleNew(serial) {
       data: data_str,
       dataType: "json",
       success: function(data, textStatus) {
-        response = formatData(data, false);
+        response = formatData(data);
         update(response, true);
       },
       error: function() {
@@ -3144,7 +3174,7 @@ function liveData() {
                         var tempDate = new Date(frame[frame.length - 1]["1"].time_received).getTime()
                     }
                     if ((dateNow - tempDate) < 30000) {
-                        var test = formatData(frame, true);
+                        var test = formatData(frame);
                         if (clientActive) {
                             live_data_buffer.positions.position.push.apply(live_data_buffer.positions.position,test.positions.position)
                         }
