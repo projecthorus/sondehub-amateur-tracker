@@ -63,7 +63,7 @@ function update_flight_doc(){
     var body = JSON.stringify(
         {
             "payload_callsign": document.getElementById("flight_doc_payload_callsign").value,
-            "float_expected": document.getElementById("flight_doc_float_expected").value == "on",
+            "float_expected": document.getElementById("flight_doc_float_expected").checked == true,
             "peak_altitude": parseFloat(document.getElementById("flight_doc_peak_altitude").value),
             "descent_rate": parseFloat(document.getElementById("flight_doc_descent_rate").value),
             "ascent_rate": parseFloat(document.getElementById("flight_doc_ascent_rate").value),
