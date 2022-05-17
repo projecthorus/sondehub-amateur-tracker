@@ -48,6 +48,16 @@ function formatData(data) {
                     var aprsflag = false;
                     dataTempEntry.callsign = {};
                     maximumAltitude = 0;
+
+                    // Temporary fix to block bad data from DG4NOB_WSPR_GW
+                    // This needs to be removed ASAP.
+                    // Basically this gateway was uploading fields like lat, lon, alt, everything really
+                    // as strings instead of numbers. Not sure how that got through sondehub, but it did
+                    // and caused a lot of the stuff below to break because strings dont have toPrecision
+                    if(data[key][i].software_name=='DG4NOB_WSPR_GW'){
+                        continue;
+                    }
+
                     if (vehicles.hasOwnProperty(data[key][i].payload_callsign)) {
                         maximumAltitude = vehicles[data[key][i].payload_callsign].max_alt;
                         if (data[key][i].datetime == vehicles[data[key][i].payload_callsign].curr_position.gps_time) {
