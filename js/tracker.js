@@ -3495,8 +3495,8 @@ function updateReceivers(r) {
                 receiver.lon = lon;
                 receiver.alt = alt;
                 receiver.age = age.toISOString();
-                receiver.description = "<font style='font-size: 13px'>"+receiver.name+"</font><br/><font size='-2'><BR><B>Radio: </B>" + last.software_name + "-" + last.software_version
-                + "<BR><B>Antenna: </B>" + last.uploader_antenna + "<BR><B>Last Contact: </B>" + age.toISOString() + "<BR></font>";
+                receiver.description = "<font style='font-size: 13px'>"+receiver.name+"</font><br/><font size='-2'><BR><B>Software: </B>" + last.software_name + "-" + last.software_version
+                + "<BR><B>Radio: </B>" + last.uploader_radio + "<BR><B>Antenna: </B>" + last.uploader_antenna + "<BR><B>Last Contact: </B>" + age.toISOString() + "<BR></font>";
                 receiver.fresh = true;
 
                 updateReceiverMarker(receiver);
