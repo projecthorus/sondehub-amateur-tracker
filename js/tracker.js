@@ -3167,25 +3167,23 @@ function liveData() {
         try {
             if (clientActive) {
                 var frame = [{"1":JSON.parse(message.payloadString.toString())}];
-                if (wvar.query == "" || sondePrefix.indexOf(wvar.query) > -1 || wvar.query == frame.payload_callsign) {
-                    if (frame.length == null) {
-                        var tempDate = new Date(frame.time_received).getTime();
-                    } else {
-                        var tempDate = new Date(frame[frame.length - 1]["1"].time_received).getTime()
+                if (frame.length == null) {
+                    var tempDate = new Date(frame.time_received).getTime();
+                } else {
+                    var tempDate = new Date(frame[frame.length - 1]["1"].time_received).getTime()
+                }
+                if ((dateNow - tempDate) < 30000) {
+                    var test = formatData(frame);
+                    if (clientActive) {
+                        live_data_buffer.positions.position.push.apply(live_data_buffer.positions.position,test.positions.position)
                     }
-                    if ((dateNow - tempDate) < 30000) {
-                        var test = formatData(frame);
-                        if (clientActive) {
-                            live_data_buffer.positions.position.push.apply(live_data_buffer.positions.position,test.positions.position)
-                        }
-                        $("#stTimer").attr("data-timestamp", dateNow);
-                        $("#stText").text("websocket |");
-                    } else if ((dateNow - new Date(frame[0]["1"].time_received).getTime()) > 150000) {
-                        $("#stText").text("error |");
-                        refresh();
-                    } else {
-                        $("#stText").text("error |");
-                    }
+                    $("#stTimer").attr("data-timestamp", dateNow);
+                    $("#stText").text("websocket |");
+                } else if ((dateNow - new Date(frame[0]["1"].time_received).getTime()) > 150000) {
+                    $("#stText").text("error |");
+                    refresh();
+                } else {
+                    $("#stText").text("error |");
                 }
             }
         }
