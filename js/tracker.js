@@ -2598,7 +2598,7 @@ function addPosition(position) {
                 // calculate vertical rate
                 var rate = (position.gps_alt - vehicle.positions_alts[search_matches.length-1]) / dtt;
                 if (!isNaN(rate) && isFinite(rate)) {
-                    vehicle.ascent_rate = 0.5 * rate + 0.5 * vehicle.ascent_rate;
+                    vehicle.ascent_rate = 0.2 * rate + 0.8 * vehicle.ascent_rate;
                 }
 
                 // calculate horizontal rate
@@ -2611,7 +2611,7 @@ function addPosition(position) {
                  // calculate vertical rate
                 var rate = (position.gps_alt - vehicle.curr_position.gps_alt) / dt;
                 if (!isNaN(rate) && isFinite(rate)) {
-                    vehicle.ascent_rate = 0.7 * rate + 0.3 * vehicle.ascent_rate;
+                    vehicle.ascent_rate = 0.2 * rate + 0.8 * vehicle.ascent_rate;
                 }
 
                 // calculate horizontal rate
