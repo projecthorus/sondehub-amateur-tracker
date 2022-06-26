@@ -1375,7 +1375,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
   var current_time = convert_time(newPosition.server_time)
 
   for(var i = 0; i < vehicle.receiver_info.length; i++){
-    if (vehicle.receiver_info[i]["time"] < current_time - 10000) {
+    if (vehicle.receiver_info[i]["time"] < current_time - 15000) {
         vehicle.receiver_info.splice(i,1);
     }
   }
@@ -1413,7 +1413,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
     }
 
     for(var receiver in vehicle.receiver_info){
-        _new_call = vehicle.receiver_info[receiver].callsign;
+        _new_call = "- " + vehicle.receiver_info[receiver].callsign;
         tempFields = [];
         if(vehicle.receiver_info[receiver].hasOwnProperty('snr')){
             tempFields.push(vehicle.receiver_info[receiver].snr + " dB");
@@ -1430,7 +1430,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
         callsign_list.push(_new_call); // catch cases where there are no fields
     }
 
-    callsign_list = callsign_list.join(", ");
+    callsign_list = callsign_list.join("<br>");
 }
 
   var timeNow = new Date();
