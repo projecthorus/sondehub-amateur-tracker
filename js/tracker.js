@@ -2582,42 +2582,19 @@ function addPosition(position) {
     }
     
     if(dt >= 0) {
-        if(vehicle.num_positions > 0) {
-
-            //average over 5s if available
-            var old_ts = vehicle.positions_ts[vehicle.positions_ts.length - 5];
-            var dtt = (new_ts - old_ts) / 1000; // convert to seconds
-
-            if (vehicle.positions_ts.length < 5) {
-                dtt = 1000;
-            }
-
+        if(vehicle.num_positions > 0 && dt > 0) {
             // calculate vertical rate
-            if (dtt > 10) {
-                var rate = (position.gps_alt - vehicle.curr_position.gps_alt) / dt;
-                if (!isNaN(rate) && isFinite(rate) && dt != 0) {
-                    vehicle.ascent_rate = 0.7 * rate + 0.3 * vehicle.ascent_rate;
-                }
-            } else {
-                var rate = (position.gps_alt - vehicle.positions_alts[vehicle.positions_alts.length - 5]) / dtt;
-                if (!isNaN(rate) && isFinite(rate)) {
-                    vehicle.ascent_rate = 0.7 * rate + 0.3 * vehicle.ascent_rate;
-                }
+            var rate = (position.gps_alt - vehicle.curr_position.gps_alt) / dt;
+            if (!isNaN(rate) && isFinite(rate)) {
+                vehicle.ascent_rate = 0.7 * rate + 0.3 * vehicle.ascent_rate;
             }
 
             // calculate horizontal rate
-            if (dtt > 10) {
-                horizontal_rate_temp = new_latlng.distanceTo(new L.LatLng(vehicle.curr_position.gps_lat, vehicle.curr_position.gps_lon)) / dt;
-                if (!isNaN(horizontal_rate_temp) && isFinite(horizontal_rate_temp) && dt != 0) {
-                    vehicle.horizontal_rate = horizontal_rate_temp;
-                }
-            } else {
-                horizontal_rate_temp = new_latlng.distanceTo(vehicle.positions[vehicle.positions.length - 5]) / dtt;
-                if (!isNaN(horizontal_rate_temp)) {
-                    vehicle.horizontal_rate = horizontal_rate_temp;
-                }
+            horizontal_rate_temp = new_latlng.distanceTo(new L.LatLng(vehicle.curr_position.gps_lat, vehicle.curr_position.gps_lon)) / dt;
+            if (!isNaN(horizontal_rate_temp) && isFinite(horizontal_rate_temp)) {
+                vehicle.horizontal_rate = horizontal_rate_temp;
             }
-         }
+        }
 
         // add the new position
         if(wvar.mode == "Position") {
