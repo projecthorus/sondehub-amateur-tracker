@@ -1384,6 +1384,21 @@ function updateVehicleInfo(vcallsign, newPosition) {
     for(var i = 0; i < vehicle.receiver_info.length; i++){
         if (vehicle.receiver_info[i]["callsign"] === callsign) {
             vehicle.receiver_info[i]["time"] = current_time
+            if(newPosition.callsign[callsign].hasOwnProperty('snr')){
+                if(newPosition.callsign[callsign].snr){
+                    vehicle.receiver_info[i].snr = newPosition.callsign[rxcall].snr.toFixed(0)
+                }
+            }
+            if(newPosition.callsign[callsign].hasOwnProperty('rssi')){
+                if(newPosition.callsign[callsign].rssi){
+                    vehicle.receiver_info[i].rssi = newPosition.callsign[rxcall].rssi.toFixed(0)
+                }
+            }
+            if(newPosition.callsign[callsign].hasOwnProperty('frequency')){
+                if(newPosition.callsign[callsign].frequency){
+                    vehicle.receiver_info[i].frequency = newPosition.callsign[rxcall].frequency.toFixed(4)
+                }
+            }
             return
         }
       }
@@ -1400,7 +1415,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
     }
     if(newPosition.callsign[callsign].hasOwnProperty('frequency')){
         if(newPosition.callsign[callsign].frequency){
-            temp_receiver.frequency = newPosition.callsign[rxcall].frequency.toFixed(0)
+            temp_receiver.frequency = newPosition.callsign[rxcall].frequency.toFixed(4)
         }
     }
     vehicle.receiver_info.push(temp_receiver)
