@@ -2591,7 +2591,7 @@ function addPosition(position) {
             
             var search_matches = vehicle.positions_ts.filter(searchPositions)
 
-            if (search_matches.length > 0 && search_matches[search_matches.length-1] >= search_ts - 5000 && vehicle.positions.length >= search_matches.length) {
+            if (search_matches.length > 0 && search_matches[search_matches.length-1] >= search_ts - 5000) {
                 var search_match = search_matches[search_matches.length-1]
                 var dtt = (curr_ts - search_match) / 1000;
                 
