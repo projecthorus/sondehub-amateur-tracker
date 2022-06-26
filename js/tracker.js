@@ -1400,7 +1400,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
     }
     if(newPosition.callsign[callsign].hasOwnProperty('frequency')){
         if(newPosition.callsign[callsign].frequency){
-            temp_receiver.frequency = newPosition.callsign[rxcall].frequency.toFixed(0)
+            temp_receiver.frequency = newPosition.callsign[rxcall].frequency.toFixed(4)
         }
     }
     vehicle.receiver_info.push(temp_receiver)
