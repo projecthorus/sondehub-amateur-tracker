@@ -1381,9 +1381,12 @@ function updateVehicleInfo(vcallsign, newPosition) {
   }
 
   function addReceiver(callsign) {
-    if (vehicle.receiver_info.filter(function(e) { return e.callsign === callsign; }).length > 0) {
-        return
-    }
+    for(var i = 0; i < vehicle.receiver_info.length; i++){
+        if (vehicle.receiver_info[i]["callsign"] === callsign) {
+            vehicle.receiver_info[i]["time"] = current_time
+            return
+        }
+      }
     var temp_receiver = {callsign: callsign, time: current_time}
     if(newPosition.callsign[callsign].hasOwnProperty('snr')){
         if(newPosition.callsign[callsign].snr){
@@ -1431,10 +1434,10 @@ function updateVehicleInfo(vcallsign, newPosition) {
     }
 
     callsign_list = callsign_list.join("<br>");
-}
+  }
 
   var timeNow = new Date();
-  var timeSent = convert_time(newPosition.server_time);
+  var timeSent = convert_time(newPosition.gps_time);
   var timeChosen = null;
 
   if (timeSent > timeNow) {
