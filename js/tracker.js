@@ -2583,16 +2583,42 @@ function addPosition(position) {
     
     if(dt >= 0) {
         if(vehicle.num_positions > 0 && dt > 0) {
-            // calculate vertical rate
-            var rate = (position.gps_alt - vehicle.curr_position.gps_alt) / dt;
-            if (!isNaN(rate) && isFinite(rate)) {
-                vehicle.ascent_rate = 0.7 * rate + 0.3 * vehicle.ascent_rate;
-            }
+            var search_ts = new_ts - 10000
 
-            // calculate horizontal rate
-            horizontal_rate_temp = new_latlng.distanceTo(new L.LatLng(vehicle.curr_position.gps_lat, vehicle.curr_position.gps_lon)) / dt;
-            if (!isNaN(horizontal_rate_temp) && isFinite(horizontal_rate_temp)) {
-                vehicle.horizontal_rate = horizontal_rate_temp;
+            function searchPositions(time) {
+                return time <= search_ts
+            }
+            
+            var search_matches = vehicle.positions_ts.filter(searchPositions)
+
+            if (search_matches.length > 0 && search_matches[search_matches.length-1] >= search_ts - 5000) {
+                var search_match = search_matches[search_matches.length-1]
+                var dtt = (curr_ts - search_match) / 1000;
+                
+                // calculate vertical rate
+                var rate = (position.gps_alt - vehicle.positions_alts[search_matches.length]) / dtt;
+                if (!isNaN(rate) && isFinite(rate)) {
+                    vehicle.ascent_rate = 0.5 * rate + 0.5 * vehicle.ascent_rate;
+                }
+
+                // calculate horizontal rate
+                horizontal_rate_temp = new_latlng.distanceTo(vehicle.positions[search_matches.length]) / dtt;
+                if (!isNaN(horizontal_rate_temp) && isFinite(horizontal_rate_temp)) {
+                    vehicle.horizontal_rate = horizontal_rate_temp;
+                }
+
+            } else {
+                 // calculate vertical rate
+                var rate = (position.gps_alt - vehicle.curr_position.gps_alt) / dt;
+                if (!isNaN(rate) && isFinite(rate)) {
+                    vehicle.ascent_rate = 0.7 * rate + 0.3 * vehicle.ascent_rate;
+                }
+
+                // calculate horizontal rate
+                horizontal_rate_temp = new_latlng.distanceTo(new L.LatLng(vehicle.curr_position.gps_lat, vehicle.curr_position.gps_lon)) / dt;
+                if (!isNaN(horizontal_rate_temp) && isFinite(horizontal_rate_temp)) {
+                    vehicle.horizontal_rate = horizontal_rate_temp;
+                }
             }
         }
 
