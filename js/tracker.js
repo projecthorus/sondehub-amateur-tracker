@@ -2591,18 +2591,18 @@ function addPosition(position) {
             
             var search_matches = vehicle.positions_ts.filter(searchPositions)
 
-            if (search_matches.length > 0 && search_matches[search_matches.length-1] >= search_ts - 5000) {
+            if (search_matches.length > 0 && search_matches[search_matches.length-1] >= search_ts - 5000 && vehicle.positions.length >= search_matches.length) {
                 var search_match = search_matches[search_matches.length-1]
                 var dtt = (curr_ts - search_match) / 1000;
                 
                 // calculate vertical rate
-                var rate = (position.gps_alt - vehicle.positions_alts[search_matches.length]) / dtt;
+                var rate = (position.gps_alt - vehicle.positions_alts[search_matches.length-1]) / dtt;
                 if (!isNaN(rate) && isFinite(rate)) {
                     vehicle.ascent_rate = 0.5 * rate + 0.5 * vehicle.ascent_rate;
                 }
 
                 // calculate horizontal rate
-                horizontal_rate_temp = new_latlng.distanceTo(vehicle.positions[search_matches.length]) / dtt;
+                horizontal_rate_temp = new_latlng.distanceTo(vehicle.positions[search_matches.length-1]) / dtt;
                 if (!isNaN(horizontal_rate_temp) && isFinite(horizontal_rate_temp)) {
                     vehicle.horizontal_rate = horizontal_rate_temp;
                 }
