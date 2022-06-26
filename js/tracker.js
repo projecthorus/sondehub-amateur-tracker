@@ -1432,7 +1432,6 @@ function updateVehicleInfo(vcallsign, newPosition) {
         }
         callsign_list.push(_new_call); // catch cases where there are no fields
     }
-
     callsign_list = callsign_list.join("<br>");
   }
 
