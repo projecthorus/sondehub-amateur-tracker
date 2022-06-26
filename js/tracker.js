@@ -3242,6 +3242,7 @@ function refreshReceivers() {
                 updateReceivers(response);
             },
             complete: function(request, textStatus) {
+                periodical_receivers = setTimeout(function() {refreshReceivers(false)}, 60 * 5 * 1000);
                 if (!offline.get("opt_hide_chase")) {
                     refreshNewReceivers(true);
                 }
