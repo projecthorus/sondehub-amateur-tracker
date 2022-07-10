@@ -1554,6 +1554,11 @@ function showHysplit(callsign) {
     for(var prediction in vehicle["prediction_hysplit"]) {
         map.addLayer(vehicle["prediction_hysplit"][prediction]);
     }
+    for(var prediction in vehicle["markers_hysplit"]) {
+        for(var pred_hour in vehicle["markers_hysplit"][prediction]){
+            map.addLayer(vehicle["markers_hysplit"][prediction][pred_hour]);
+        }
+    }
 }
 
 function hideHysplit(callsign) {
@@ -1562,33 +1567,51 @@ function hideHysplit(callsign) {
     for(var prediction in vehicle["prediction_hysplit"]) {
         map.removeLayer(vehicle["prediction_hysplit"][prediction]);
     }
+    for(var prediction in vehicle["markers_hysplit"]) {
+        for(var pred_hour in vehicle["markers_hysplit"][prediction]){
+            map.removeLayer(vehicle["markers_hysplit"][prediction][pred_hour]);
+        }
+    }
 }
 
 function generateHysplit(callsign) {
     hideHysplit(callsign)
     var vehicle = vehicles[callsign];
     vehicle.prediction_hysplit_visible = true;
-    for (var alt = -1000; alt <= 1000; alt+=100) {
-        createHysplit(callsign, alt);
+    alt_max = 1000;
+    alt_step = 100;
+    alt_min = alt_max*-1;
+    for (var alt = alt_min; alt <= alt_max; alt+=alt_step) {
+        alt_norm = (alt+alt_max)/(alt_max*2.0);
+        alt_color = ConvertRGBtoHex(evaluate_cmap(alt_norm, 'turbo'));
+        createHysplit(callsign, alt, alt_color);
     }
 }
 
-function createHysplit(callsign, adjustment) {
+function createHysplit(callsign, adjustment, alt_color) {
+
     var vehicle = vehicles[callsign];
 
     var altitude = Math.round(vehicle.curr_position.gps_alt) + adjustment;
 
-    var startTime = new Date(Date.parse(vehicle.curr_position.gps_time.replace("Z","")));
-    //max is 8h back so need to catch is older
+    // Handle any instances where we ended up with a weird time format from the APRS gateway.
+    // This should not be an issue with any other 
+    var vehicleStartTime = vehicle.curr_position.gps_time.replace("+00:00Z","Z");
+
+    var startTime = new Date(Date.parse(vehicleStartTime));
+    //max is 6h back so need to catch if older
     var nowTime = new Date();
     var timeDifference = nowTime - startTime;
-    if (timeDifference > 28800000) {
-        nowTime.setHours(nowTime.getHours() - 8);
+    // If last vehicle position is greater than 6 hours old,
+    // Set start time to now - 6 hours.
+    if (timeDifference > 21600000) {
+        nowTime.setHours(nowTime.getHours() - 6);
         startTime = nowTime;
     }
     startTime = startTime.toISOString();
 
-    var endTime = new Date(Date.parse(vehicle.curr_position.gps_time.replace("Z","")));
+    // Predict up to 84 hours ahead.
+    var endTime = new Date(Date.parse(vehicleStartTime));
     endTime.setHours(endTime.getHours() + 84);
     endTime = endTime.toISOString();
 
@@ -1610,7 +1633,13 @@ function createHysplit(callsign, adjustment) {
         success: function(data) {
             var start = new L.LatLng(vehicle.curr_position.gps_lat, vehicle.curr_position.gps_lon);
             var path = [start];
+
+            start_hours = 0;
+            startDateTime = -1;
+            startDateStr = "";
+
             for (let point in data.prediction[1].trajectory) {
+                // Create path for current prediction.
                 if (data.prediction[1].trajectory[point].latitude > 180.0) {
                     var lat = data.prediction[1].trajectory[point].latitude - 360.0;
                 } else {
@@ -1623,8 +1652,46 @@ function createHysplit(callsign, adjustment) {
                 }
                 var position = new L.LatLng(lat, lon);
                 path.push(position);
+
+                // Now create a circle marker if we are at a unit of 4 hours after the start time.
+                if(startDateTime === -1){
+                    startDateTime = new Date(Date.parse(data.prediction[1].trajectory[point].datetime));
+                    startDateStr = data.prediction[1].trajectory[point].datetime;
+                }
+
+                current_time = new Date(Date.parse(data.prediction[1].trajectory[point].datetime));
+                current_hours = Math.round((current_time-startDateTime)/3600000);
+                if(current_hours >= (start_hours+4)){
+                    // We are at a unit of 4 hours, make a circle marker with information about the current prediction time.
+                    if(vehicle.markers_hysplit.hasOwnProperty(adjustment) == false){
+                        vehicle.markers_hysplit[adjustment] = {};
+                    }
+
+                    vehicle.markers_hysplit[adjustment][current_hours] = new L.CircleMarker(position, 
+                        {
+                            radius: 6,
+                            fillOpacity: 1,
+                            color: alt_color,
+                        }
+                    ).bindPopup(
+                        "<B>Prediction Start Time:</B> " + startDateStr + "<BR><B>Prediction Start Altitude: </B>" + altitude + "<BR><B>Prediction Current time:</B> " + data.prediction[1].trajectory[point].datetime + " (+" + current_hours + " hrs)"
+                    );
+
+                    if(vehicle.prediction_hysplit_visible){
+                        vehicle.markers_hysplit[adjustment][current_hours].addTo(map);
+                    }
+                        
+                    start_hours = current_hours;
+                }
+
+
             }
-            vehicle.prediction_hysplit[adjustment] = new L.Wrapped.Polyline(path);
+            // Add the polyline to the map.
+            vehicle.prediction_hysplit[adjustment] = new L.Wrapped.Polyline(path,
+                {
+                    'color':alt_color,
+                }
+            );
             vehicle.prediction_hysplit_age = vehicle.curr_position.gps_time;
             if (vehicle.prediction_hysplit_visible) {
                 vehicle.prediction_hysplit[adjustment].addTo(map);
@@ -2518,6 +2585,7 @@ function addPosition(position) {
                             prediction_hysplit: {},
                             prediction_hysplit_visible: false,
                             prediction_hysplit_age: 0,
+                            markers_hysplit: {},
                             ascent_rate: 0.0,
                             horizontal_rate: 0.0,
                             max_alt: parseFloat(position.gps_alt),
@@ -2588,6 +2656,11 @@ function addPosition(position) {
             }
             for(var prediction in vehicle_info["prediction_hysplit"]) {
                 map.removeLayer(vehicle_info["prediction_hysplit"][prediction]);
+            }
+            for(var prediction in vehicle_info["markers_hysplit"]) {
+                for(var pred_hour in vehicle_info["markers_hysplit"][prediction]){
+                    map.removeLayer(vehicle_info["markers_hysplit"][prediction][pred_hour]);
+                }
             }
             try {
                 for(var p in vehicle_info.polyline) {
