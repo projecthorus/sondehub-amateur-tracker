@@ -3361,7 +3361,7 @@ function refreshReceivers() {
                 updateReceivers(response);
             },
             complete: function(request, textStatus) {
-                periodical_receivers = setTimeout(function() {refreshReceivers(false)}, 60 * 5 * 1000);
+                periodical_receivers = setTimeout(function() {refreshReceivers(false)}, 60 * 10 * 1000);
                 if (!offline.get("opt_hide_chase")) {
                     refreshNewReceivers(true);
                 }
@@ -3395,7 +3395,7 @@ function refreshNewReceivers(initial, serial) {
         },
         complete: function(request, textStatus) {
             if (typeof serial === 'undefined') {
-                periodical_listeners = setTimeout(function() {refreshNewReceivers(false)}, 30 * 1000);
+                periodical_listeners = setTimeout(function() {refreshNewReceivers(false)}, 60 * 1000);
             }
         }
     });
