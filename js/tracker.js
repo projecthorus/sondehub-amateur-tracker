@@ -3395,7 +3395,7 @@ function refreshNewReceivers(initial, serial) {
         },
         complete: function(request, textStatus) {
             if (typeof serial === 'undefined') {
-                periodical_listeners = setTimeout(function() {refreshNewReceivers(false)}, 30 * 1000);
+                periodical_listeners = setTimeout(function() {refreshNewReceivers(false)}, 60 * 1000);
             }
         }
     });
