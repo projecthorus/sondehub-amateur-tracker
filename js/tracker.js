@@ -2702,38 +2702,63 @@ function addPosition(position) {
     
     if(dt >= 0) {
         if(vehicle.num_positions > 0 && dt > 0) {
-            var search_ts = new_ts - 10000
 
-            function searchPositions(times) {
-                for (i = times.length; i >= 0; i--) {
-                    if (times[i] <= search_ts) {
-                        return times[i]
-                    }
-                }
-                return null
-            }
+        //
+        // This commenteed block is an attempt at having the ascent rate and speed
+        // calculations be run over a wider time range than just the last position.
+        //
+        //     var search_ts = new_ts - 10000
+
+        //     function searchPositions(times) {
+        //         for (i = times.length; i >= 0; i--) {
+        //             if (times[i] <= search_ts) {
+        //                 return times[i]
+        //             }
+        //         }
+        //         return null
+        //     }
             
-            var search_match = searchPositions(vehicle.positions_ts)
-            var search_index = vehicle.positions_ts.indexOf(search_match)
+        //     var search_match = searchPositions(vehicle.positions_ts)
+        //     var search_index = vehicle.positions_ts.indexOf(search_match)
 
-            if (search_match != null && search_match >= search_ts - 5000) {
-                var dtt = (curr_ts - search_match) / 1000;
+        //     if (search_match != null && search_match >= search_ts - 5000) {
+        //         var dtt = (curr_ts - search_match) / 1000;
+
+        //         //console.log("Search: Old: " + search_match + ", " + vehicle.positions_alts[search_index] + " New: " + curr_ts + ", " + position.gps_alt);
                 
-                // calculate vertical rate
-                var rate = (position.gps_alt - vehicle.positions_alts[search_index]) / dtt;
-                if (!isNaN(rate) && isFinite(rate)) {
-                    vehicle.ascent_rate = 0.2 * rate + 0.8 * vehicle.ascent_rate;
-                }
+        //         // calculate vertical rate
+        //         if(position.data.hasOwnProperty('ascent_rate')){
+        //             // Use provided ascent rate if available.
+        //             var rate = position.data.ascent_rate;
+        //         } else {
+        //             var rate = (position.gps_alt - vehicle.positions_alts[search_index]) / dtt;
+        //         }
+        //         if (!isNaN(rate) && isFinite(rate)) {
+        //             vehicle.ascent_rate = 0.2 * rate + 0.8 * vehicle.ascent_rate;
+        //         }
 
-                // calculate horizontal rate
-                horizontal_rate_temp = new_latlng.distanceTo(vehicle.positions[search_index]) / dtt;
-                if (!isNaN(horizontal_rate_temp) && isFinite(horizontal_rate_temp)) {
-                    vehicle.horizontal_rate = horizontal_rate_temp;
-                }
+        //         //console.log("Search OK - DTT: " + dtt + " Instant Rate: " + rate + " Average Rate: " + vehicle.ascent_rate);
 
-            } else {
-                 // calculate vertical rate
-                var rate = (position.gps_alt - vehicle.curr_position.gps_alt) / dt;
+        //         // calculate horizontal rate
+        //         horizontal_rate_temp = new_latlng.distanceTo(vehicle.positions[search_index]) / dtt;
+        //         if (!isNaN(horizontal_rate_temp) && isFinite(horizontal_rate_temp)) {
+        //             vehicle.horizontal_rate = horizontal_rate_temp;
+        //         }
+
+        //     } else {
+                // This section is the 'original' method of calculating the ascent and horizontal rates.
+                // It works only on the last and current position.
+                // The ascent rate is filtered.
+
+                // This commented block allows use of payload-supplied ascent rate data.
+                // This might be worth using.
+                //
+                // if(position.data.hasOwnProperty('ascent_rate')){
+                //      var rate = position.data.ascent_rate;
+                //  } else {
+                    var rate = (position.gps_alt - vehicle.curr_position.gps_alt) / dt;
+                //}
+                
                 if (!isNaN(rate) && isFinite(rate)) {
                     vehicle.ascent_rate = 0.2 * rate + 0.8 * vehicle.ascent_rate;
                 }
@@ -2743,7 +2768,7 @@ function addPosition(position) {
                 if (!isNaN(horizontal_rate_temp) && isFinite(horizontal_rate_temp)) {
                     vehicle.horizontal_rate = horizontal_rate_temp;
                 }
-            }
+            //}
         }
 
         // add the new position
@@ -3302,7 +3327,7 @@ function liveData() {
                 if ((dateNow - tempDate) < 30000) {
                     var test = formatData(frame);
                     if (clientActive) {
-                        live_data_buffer.positions.position.push.apply(live_data_buffer.positions.position,test.positions.position)
+                        live_data_buffer.positions.position.push.apply(live_data_buffer.positions.position,test.positions.position);
                     }
                     $("#stTimer").attr("data-timestamp", dateNow);
                     $("#stText").text("websocket |");
