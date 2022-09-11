@@ -1847,9 +1847,17 @@ function redrawPrediction(vcallsign) {
         }
         vehicle.prediction_target.pdata = data[data.length-1];
         if(vehicle.prediction.descent_rate == null){
-            vehicle.prediction_target.pred_type = "Float Prediction";
+            vehicle.prediction_target.pred_type = "<b>Prediction Type:</b> Float\n";
         } else {
-            vehicle.prediction_target.pred_type = "Standard, " + vehicle.prediction.descent_rate.toFixed(1) + " m/s descent rate.";
+            if(vehicle.prediction.descending == 1){
+                vehicle.prediction_target.pred_type = "<b>Prediction Type:</b> Standard \n" + 
+                    "<b>Descent Rate:</b> " + vehicle.prediction.descent_rate.toFixed(1) + " m/s \n";
+            } else {
+                vehicle.prediction_target.pred_type = "<b>Prediction Type:</b> Standard \n" + 
+                    "<b>Ascent Rate:</b> " + vehicle.prediction.ascent_rate.toFixed(1) + " m/s \n" + 
+                    "<b>Burst Altitude:</b> " + vehicle.prediction.burst_altitude.toFixed(0) + " m\n" + 
+                    "<b>Descent Rate:</b> " + vehicle.prediction.descent_rate.toFixed(1) + " m/s \n";
+            }
         }
     } else {
         // Suspect this will never be called? 
@@ -1876,9 +1884,17 @@ function redrawPrediction(vcallsign) {
         }
         vehicle.prediction_burst.pdata = data[burst_index];
         if(vehicle.prediction.descent_rate == null){
-            vehicle.prediction_burst.pred_type = "Float Prediction";
+            vehicle.prediction_burst.pred_type = "<b>Prediction Type:</b> Float\n";
         } else {
-            vehicle.prediction_burst.pred_type = "Standard, " + vehicle.prediction.descent_rate.toFixed(1) + " m/s descent rate.";
+            if(vehicle.prediction.descending == 1){
+                vehicle.prediction_burst.pred_type = "<b>Prediction Type:</b> Standard \n" + 
+                    "<b>Descent Rate:</b> " + vehicle.prediction.descent_rate.toFixed(1) + " m/s \n";
+            } else {
+                vehicle.prediction_burst.pred_type = "<b>Prediction Type:</b> Standard \n" + 
+                    "<b>Ascent Rate:</b> " + vehicle.prediction.ascent_rate.toFixed(1) + " m/s \n" + 
+                    "<b>Burst Altitude:</b> " + vehicle.prediction.burst_altitude.toFixed(0) + " m\n" + 
+                    "<b>Descent Rate:</b> " + vehicle.prediction.descent_rate.toFixed(1) + " m/s \n";
+            }
         }
     } else {
         if(vehicle.prediction_burst){
@@ -2190,7 +2206,7 @@ function mapInfoBox_handle_prediction(event) {
                         "<b>Altitude:</b> " + altitude + "\n" +
                         "<b>Latitude:</b> " + data.lat + "\n" +
                         "<b>Longitude:</b> " + data.lon + "\n" +
-                        "<b>Prediction Type:</b> " + event.target.pred_type + "\n" +
+                        event.target.pred_type +
                         "</pre>"
                         );
     mapInfoBox.setLatLng(event.latlng);
