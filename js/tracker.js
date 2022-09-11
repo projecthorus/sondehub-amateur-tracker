@@ -1460,6 +1460,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
       timeChosen = timeSent;
   }
 
+
   //desktop
   var a    = '<div class="header">' +
            '<span>' + sonde_type + vcallsign + ' <i class="icon-target"></i></span>' +
@@ -1816,7 +1817,7 @@ function redrawPrediction(vcallsign) {
     vehicle.prediction_polyline.path_length = path_length;
 
     var image_src;
-    if(vcallsign != "wb8elk2") { // WhiteStar
+    if(vcallsign != "wb8elk2") { // WhiteStar - Not sure the reasons behind a check for this? Seems odd. May be from when WB8ELK was first doing floater flights?
         var html = "";
         if(vehicle.prediction_target) {
             vehicle.prediction_target.setLatLng(latlng);
@@ -1836,7 +1837,13 @@ function redrawPrediction(vcallsign) {
             });
         }
         vehicle.prediction_target.pdata = data[data.length-1];
+        if(vehicle.prediction.descent_rate == null){
+            vehicle.prediction_target.pred_type = "Float Prediction";
+        } else {
+            vehicle.prediction_target.pred_type = "Standard, " + vehicle.prediction.descent_rate.toFixed(1) + " m/s descent rate.";
+        }
     } else {
+        // Suspect this will never be called? 
         if(vehicle.prediction_target) vehicle.prediction_target = null;
     }
 
@@ -1859,8 +1866,17 @@ function redrawPrediction(vcallsign) {
             });
         }
         vehicle.prediction_burst.pdata = data[burst_index];
+        if(vehicle.prediction.descent_rate == null){
+            vehicle.prediction_burst.pred_type = "Float Prediction";
+        } else {
+            vehicle.prediction_burst.pred_type = "Standard, " + vehicle.prediction.descent_rate.toFixed(1) + " m/s descent rate.";
+        }
     } else {
-        if(vehicle.prediction_burst) vehicle.prediction_burst = null;
+        if(vehicle.prediction_burst){
+            // Remove burst icon from the map if no burst data in prediction.
+            map.removeLayer(vehicle.prediction_burst);
+            vehicle.prediction_burst = null;
+        }
     }
 }
 
@@ -2160,11 +2176,14 @@ function mapInfoBox_handle_prediction(event) {
         altitude = Math.round(data.alt) + " m";
     }
 
+    console.log(event);
+
     mapInfoBox.setContent("<pre>" +
                         formatDate(new Date(parseInt(data.time) * 1000), true) + "\n\n" +
                         "<b>Altitude:</b> " + altitude + "\n" +
                         "<b>Latitude:</b> " + data.lat + "\n" +
                         "<b>Longitude:</b> " + data.lon + "\n" +
+                        "<b>Prediction Type:</b> " + event.target.pred_type + "\n" +
                         "</pre>"
                         );
     mapInfoBox.setLatLng(event.latlng);
