@@ -3,6 +3,7 @@ var position_id = 0;
 var newdata_url = "https://api.v2.sondehub.org/amateur/telemetry";
 var receivers_url = "https://api.v2.sondehub.org/amateur/listeners/telemetry";
 var predictions_url = "https://api.v2.sondehub.org/amateur/predictions?vehicles=";
+var grafana_url = "https://grafana.v2.sondehub.org/d/HJgOZLq7k/basic?";
 
 var livedata = "wss://ws-reader.v2.sondehub.org/";
 var clientID = "SondeHub-Tracker-" + Math.floor(Math.random() * 10000000000);
@@ -1460,6 +1461,8 @@ function updateVehicleInfo(vcallsign, newPosition) {
       timeChosen = timeSent;
   }
 
+  // Generate Grafana Link
+  var grafana_dashboard_url = grafana_url + "var-Payload=" + vcallsign + "&from=" + vehicle.positions_ts[0] + "&to=" + vehicle.positions_ts[vehicle.positions_ts.length-1] + "&orgId=1";
 
   //desktop
   var a    = '<div class="header">' +
