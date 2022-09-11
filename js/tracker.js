@@ -2176,8 +2176,6 @@ function mapInfoBox_handle_prediction(event) {
         altitude = Math.round(data.alt) + " m";
     }
 
-    console.log(event);
-
     mapInfoBox.setContent("<pre>" +
                         formatDate(new Date(parseInt(data.time) * 1000), true) + "\n\n" +
                         "<b>Altitude:</b> " + altitude + "\n" +
