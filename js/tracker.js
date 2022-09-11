@@ -811,8 +811,12 @@ function shareVehicle(callsign) {
     } catch (e) {
         console.log("Error sharing: " + e);
     }
-    
 }
+
+function openURL(address){
+    window.open(address, '_blank');
+}
+
 
 function panTo(vcallsign) {
     if(!vcallsign || vehicles[vcallsign] === undefined) return;
@@ -1472,8 +1476,9 @@ function updateVehicleInfo(vcallsign, newPosition) {
            '<div class="data">' +
            '<img class="'+((vehicle.vehicle_type=="car")?'car':'')+'" src="'+image+'" />' +
            '<span class="vbutton path '+((vehicle.polyline_visible) ? 'active' : '')+'" data-vcallsign="'+vcallsign+'"' + ' style="top:'+(vehicle.image_src_size[1]+55)+'px">Path</span>' +
-           ((vehicle.vehicle_type!="car") ? '<span class="sbutton" onclick="shareVehicle(\'' + vcallsign + '\')" style="top:'+(vehicle.image_src_size[1]+85)+'px">Share</span>' : '') +
-           ((vehicle.vehicle_type!="car" && newPosition.gps_alt > 5000 && vehicle.ascent_rate < 1 && vehicle.ascent_rate > -1) ? '<span class="sbutton hysplit '+((vehicle.prediction_hysplit_visible) ? 'active' : '')+'" data-vcallsign="' + vcallsign + '" style="top:'+(vehicle.image_src_size[1]+115)+'px">Float</span>' : '') +
+           ((vehicle.vehicle_type!="car") ? '<span class="sbutton" onclick="shareVehicle(\'' + vcallsign + '\')" style="top:'+(vehicle.image_src_size[1]+85)+'px">Share</span>' : '') + 
+           ((vehicle.vehicle_type!="car") ? '<span class="sbutton" onclick="openURL(\'' + grafana_dashboard_url + '\')" style="top:'+(vehicle.image_src_size[1]+115)+'px">Plots</span>' : '') + 
+           ((vehicle.vehicle_type!="car" && newPosition.gps_alt > 3000 && vehicle.ascent_rate < 1 && vehicle.ascent_rate > -1) ? '<span class="sbutton hysplit '+((vehicle.prediction_hysplit_visible) ? 'active' : '')+'" data-vcallsign="' + vcallsign + '" style="top:'+(vehicle.image_src_size[1]+145)+'px">Float</span>' : '') +
            '<div class="left">' +
            '<dl>';
   //mobile
@@ -1485,7 +1490,8 @@ function updateVehicleInfo(vcallsign, newPosition) {
            '<img class="'+((vehicle.vehicle_type=="car")?'car':'')+'" src="'+image+'" />' +
            '<span class="vbutton path '+((vehicle.polyline_visible) ? 'active' : '')+'" data-vcallsign="'+vcallsign+'"' + ' style="top:55px">Path</span>' +
            ((vehicle.vehicle_type!="car") ? '<span class="sbutton" onclick="shareVehicle(\'' + vcallsign + '\')" style="top:85px">Share</span>' : '') +
-           ((vehicle.vehicle_type!="car" && newPosition.gps_alt > 5000 && vehicle.ascent_rate < 1 && vehicle.ascent_rate > -1) ? '<span class="sbutton hysplit '+((vehicle.prediction_hysplit_visible) ? 'active' : '')+'" data-vcallsign="' + vcallsign + '" style="top:115px">Float</span>' : '') +
+           ((vehicle.vehicle_type!="car") ? '<span class="sbutton" onclick="openURL(\'' + grafana_dashboard_url + '\')" style="top:115px">Plots</span>' : '') + 
+           ((vehicle.vehicle_type!="car" && newPosition.gps_alt > 3000 && vehicle.ascent_rate < 1 && vehicle.ascent_rate > -1) ? '<span class="sbutton hysplit '+((vehicle.prediction_hysplit_visible) ? 'active' : '')+'" data-vcallsign="' + vcallsign + '" style="top:145px">Float</span>' : '') +
            '<div class="left">' +
            '<dl>';
   var b    = '</dl>' +
