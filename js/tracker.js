@@ -3,6 +3,7 @@ var position_id = 0;
 var newdata_url = "https://api.v2.sondehub.org/amateur/telemetry";
 var receivers_url = "https://api.v2.sondehub.org/amateur/listeners/telemetry";
 var predictions_url = "https://api.v2.sondehub.org/amateur/predictions?vehicles=";
+var grafana_url = "https://grafana.v2.sondehub.org/d/HJgOZLq7k/basic?";
 
 var livedata = "wss://ws-reader.v2.sondehub.org/";
 var clientID = "SondeHub-Tracker-" + Math.floor(Math.random() * 10000000000);
@@ -1460,6 +1461,9 @@ function updateVehicleInfo(vcallsign, newPosition) {
       timeChosen = timeSent;
   }
 
+  // Generate Grafana Link
+  var grafana_dashboard_url = grafana_url + "var-Payload=" + vcallsign + "&from=" + vehicle.positions_ts[0] + "&to=" + vehicle.positions_ts[vehicle.positions_ts.length-1] + "&orgId=1";
+
   //desktop
   var a    = '<div class="header">' +
            '<span>' + sonde_type + vcallsign + ' <i class="icon-target"></i></span>' +
@@ -1816,7 +1820,7 @@ function redrawPrediction(vcallsign) {
     vehicle.prediction_polyline.path_length = path_length;
 
     var image_src;
-    if(vcallsign != "wb8elk2") { // WhiteStar
+    if(vcallsign != "wb8elk2") { // WhiteStar - Not sure the reasons behind a check for this? Seems odd. May be from when WB8ELK was first doing floater flights?
         var html = "";
         if(vehicle.prediction_target) {
             vehicle.prediction_target.setLatLng(latlng);
@@ -1836,7 +1840,13 @@ function redrawPrediction(vcallsign) {
             });
         }
         vehicle.prediction_target.pdata = data[data.length-1];
+        if(vehicle.prediction.descent_rate == null){
+            vehicle.prediction_target.pred_type = "Float Prediction";
+        } else {
+            vehicle.prediction_target.pred_type = "Standard, " + vehicle.prediction.descent_rate.toFixed(1) + " m/s descent rate.";
+        }
     } else {
+        // Suspect this will never be called? 
         if(vehicle.prediction_target) vehicle.prediction_target = null;
     }
 
@@ -1859,8 +1869,17 @@ function redrawPrediction(vcallsign) {
             });
         }
         vehicle.prediction_burst.pdata = data[burst_index];
+        if(vehicle.prediction.descent_rate == null){
+            vehicle.prediction_burst.pred_type = "Float Prediction";
+        } else {
+            vehicle.prediction_burst.pred_type = "Standard, " + vehicle.prediction.descent_rate.toFixed(1) + " m/s descent rate.";
+        }
     } else {
-        if(vehicle.prediction_burst) vehicle.prediction_burst = null;
+        if(vehicle.prediction_burst){
+            // Remove burst icon from the map if no burst data in prediction.
+            map.removeLayer(vehicle.prediction_burst);
+            vehicle.prediction_burst = null;
+        }
     }
 }
 
@@ -2165,6 +2184,7 @@ function mapInfoBox_handle_prediction(event) {
                         "<b>Altitude:</b> " + altitude + "\n" +
                         "<b>Latitude:</b> " + data.lat + "\n" +
                         "<b>Longitude:</b> " + data.lon + "\n" +
+                        "<b>Prediction Type:</b> " + event.target.pred_type + "\n" +
                         "</pre>"
                         );
     mapInfoBox.setLatLng(event.latlng);
