@@ -1269,13 +1269,15 @@ function updateVehicleInfo(vcallsign, newPosition) {
                 // Balloon is still in flight, so update the marker.
                 vehicle.landing_marker.setLatLng(new L.LatLng(newPosition.data.pred_lat, newPosition.data.pred_lon));
                 // Re-add to map if it's been removed previously.
-                if (vehicle.landing_marker.getMap() == null){
-                    map.addLayer(vehicle.landing_marker);
+                if (vehicle.landing_marker_enabled == false){
+                    vehicle.landing_marker.addTo(map);
+                    vehicle.landing_marker_enabled = true;
                 }
             }else{
                 // Balloon has landed, so hide the marker.
                 // Should we do this? Can we re-add it safely?
-                map.removeLayer(vehicle.landing_marker);
+                vehicle.landing_marker.remove();
+                vehicle.landing_marker_enabled = false;
             }
         } else{
             // Landing marker has not been initialised yet.
@@ -1301,6 +1303,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
 
                 // Add the marker to the vehicle object.
                 vehicle.landing_marker = landing_marker;
+                vehicle.landing_marker_enabled = true;
             }
 
         }
@@ -2496,11 +2499,14 @@ function addPosition(position) {
                         title: vcallsign + " Onboard Landing Prediction",
                         zIndexOffset: Z_CAR,
                       }).addTo(map);
+                    landing_marker_enabled = true;
                 } else {
                     landing_marker = null;
+                    landing_marker_enabled = false;
                 }
             } else {
                 landing_marker = null;
+                landing_marker_enabled = false;
             }
 
             horizon_circle = new L.Circle(point, {
@@ -2595,6 +2601,7 @@ function addPosition(position) {
                             title: title,
                             marker_shadow: marker_shadow,
                             landing_marker: landing_marker,
+                            landing_marker_enabled: landing_marker_enabled,
                             image_src: image_src,
                             image_src_size: image_src_size,
                             image_src_offset: image_src_offset,
