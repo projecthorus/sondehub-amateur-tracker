@@ -1285,7 +1285,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
                 landing_image_src_size = [48,38];
                 landing_image_src_offset = [0,-38];
 
-                latlngs = new L.latLng(position.data.pred_lat, position.data.pred_lon);
+                latlngs = new L.latLng(newPosition.data.pred_lat, newPosition.data.pred_lon);
 
                 landing_icon = new L.icon({
                     iconUrl: landing_image_src,
