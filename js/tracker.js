@@ -2305,6 +2305,7 @@ function addPosition(position) {
         var marker = null;
         var marker_shadow = null;
         var landing_marker = null;
+        var landing_marker_enabled = false;
         var vehicle_type = "";
         var horizon_circle = null;
         var subhorizon_circle = null;
