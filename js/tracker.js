@@ -825,10 +825,10 @@ function panTo(vcallsign) {
     update_lookangles(vcallsign);
 
     // pan map
-    if (map.getZoom() > 10) {
+    if (map.getZoom() > 8) {
         map.setView(vehicles[vcallsign].marker.getLatLng());
     } else {
-        map.setView(vehicles[vcallsign].marker.getLatLng(), 10);
+        map.setView(vehicles[vcallsign].marker.getLatLng(), 8);
     }
 }
 
