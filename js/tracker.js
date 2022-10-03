@@ -3290,9 +3290,13 @@ function refreshSingleNew(serial) {
     }
   
     ajax_inprogress_single_new = true;
-  
-    var data_str = "duration=3d&payload_callsign=" + serial;
-  
+
+    // Only request backlog data from the current time period.
+    var mode = wvar.mode.toLowerCase();
+    mode = (mode == "position") ? "latest" : mode.replace(/ /g,"");
+    var data_str = "duration=" + mode + "&payload_callsign=" + serial;
+
+
     ajax_positions_single_new = $.ajax({
       type: "GET",
       url: newdata_url,
@@ -3328,6 +3332,12 @@ function liveData() {
             client.subscribe("amateur/#");
             clientTopic = "amateur/#";
         }
+
+        // Also subscribe to amateur-listener data, for listener and chase-car telemetry.
+        // To revert listener-via-websockets change, comment out this line,
+        // and un-comment the 'Disable periodical listener refresh' lines further below.
+        client.subscribe("amateur-listener/#");
+
         clientConnected = true;
         $("#stText").text("websocket |");
     };
@@ -3368,24 +3378,51 @@ function liveData() {
         var dateNow = new Date().getTime();
         try {
             if (clientActive) {
-                var frame = [{"1":JSON.parse(message.payloadString.toString())}];
-                if (frame.length == null) {
-                    var tempDate = new Date(frame.time_received).getTime();
-                } else {
-                    var tempDate = new Date(frame[frame.length - 1]["1"].time_received).getTime()
-                }
-                if ((dateNow - tempDate) < 30000) {
-                    var test = formatData(frame);
-                    if (clientActive) {
-                        live_data_buffer.positions.position.push.apply(live_data_buffer.positions.position,test.positions.position);
+                if(message.topic.startsWith("amateur-listener")){
+                    // Message is Listener / Chase-Car information
+                    var frame = JSON.parse(message.payloadString.toString());
+                    // We need to convert this into the right format for feeding into the receiver / chase car update functions.
+                    // Probably a cleaner way of doing this.
+                    // Format needs to be {callsign : {timestamp: frame}}
+                    var formatted_frame = {};
+                    formatted_frame[frame.uploader_callsign] = {};
+                    formatted_frame[frame.uploader_callsign][frame.ts] = frame;
+
+                    // Send frames with mobile present and true onto the chase-car updater,
+                    // otherwise, send them to the receiver updater.
+                    // Do this on a per-update bases, since listener / chase car updates shouldn't
+                    // be as frequent.
+                    if(frame.hasOwnProperty('mobile')) {
+                        if(frame.mobile == true) {
+                            updateChase(formatted_frame);
+                        } else {
+                            updateReceivers(formatted_frame);
+                        }
+                    } else {
+                        updateReceivers(formatted_frame);
                     }
-                    $("#stTimer").attr("data-timestamp", dateNow);
-                    $("#stText").text("websocket |");
-                } else if ((dateNow - new Date(frame[0]["1"].time_received).getTime()) > 150000) {
-                    $("#stText").text("error |");
-                    refresh();
+
                 } else {
-                    $("#stText").text("error |");
+                    // Message is payload telemetry
+                    var frame = [{"1":JSON.parse(message.payloadString.toString())}];
+                    if (frame.length == null) {
+                        var tempDate = new Date(frame.time_received).getTime();
+                    } else {
+                        var tempDate = new Date(frame[frame.length - 1]["1"].time_received).getTime()
+                    }
+                    if ((dateNow - tempDate) < 30000) {
+                        var test = formatData(frame);
+                        if (clientActive) {
+                            live_data_buffer.positions.position.push.apply(live_data_buffer.positions.position,test.positions.position);
+                        }
+                        $("#stTimer").attr("data-timestamp", dateNow);
+                        $("#stText").text("websocket |");
+                    } else if ((dateNow - new Date(frame[0]["1"].time_received).getTime()) > 150000) {
+                        $("#stText").text("error |");
+                        refresh();
+                    } else {
+                        $("#stText").text("error |");
+                    }
                 }
             }
         }
@@ -3436,7 +3473,8 @@ function refreshReceivers() {
                 updateReceivers(response);
             },
             complete: function(request, textStatus) {
-                periodical_receivers = setTimeout(function() {refreshReceivers(false)}, 60 * 10 * 1000);
+                // Disable periodical listener refresh - this data now comes via websockets.
+                //periodical_receivers = setTimeout(function() {refreshReceivers(false)}, 60 * 10 * 1000);
                 if (!offline.get("opt_hide_chase")) {
                     refreshNewReceivers(true);
                 }
@@ -3470,7 +3508,8 @@ function refreshNewReceivers(initial, serial) {
         },
         complete: function(request, textStatus) {
             if (typeof serial === 'undefined') {
-                periodical_listeners = setTimeout(function() {refreshNewReceivers(false)}, 60 * 1000);
+                // Disable periodical listener refresh - this data now comes via websockets.
+                //periodical_listeners = setTimeout(function() {refreshNewReceivers(false)}, 60 * 1000);
             }
         }
     });
@@ -3497,6 +3536,7 @@ function refreshPredictions() {
         },
         complete: function(request, textStatus) {
             clearTimeout(periodical_predictions);
+            // TODO - Switch this to websockets as well.
             periodical_predictions = setTimeout(refreshPredictions, 60 * 1000);
         }
     });
