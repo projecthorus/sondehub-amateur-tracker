@@ -2207,8 +2207,7 @@ function mapInfoBox_handle_prediction(event) {
     mapInfoBox.setContent("<pre>" +
                         formatDate(new Date(parseInt(data.time) * 1000), true) + "\n\n" +
                         "<b>Altitude:</b> " + altitude + "\n" +
-                        "<b>Latitude:</b> " + data.lat + "\n" +
-                        "<b>Longitude:</b> " + data.lon + "\n" +
+                        "<b>Location:</b> <a href='geo:" + data.lat.toFixed(5) + "," + data.lon.toFixed(5) + "'>" + data.lat.toFixed(5) + ", " + data.lon.toFixed(5) + "</a>\n" + 
                         event.target.pred_type +
                         "</pre>"
                         );
