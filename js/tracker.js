@@ -3396,10 +3396,10 @@ function liveData() {
                         if(frame.mobile == true) {
                             updateChase(formatted_frame);
                         } else {
-                            updateReceivers(formatted_frame);
+                            updateReceivers(formatted_frame, single=true);
                         }
                     } else {
-                        updateReceivers(formatted_frame);
+                        updateReceivers(formatted_frame, single=true);
                     }
 
                 } else {
@@ -3470,7 +3470,7 @@ function refreshReceivers() {
             data: data_str,
             dataType: "json",
             success: function(response, textStatus) {
-                updateReceivers(response);
+                updateReceivers(response, single=false);
             },
             complete: function(request, textStatus) {
                 // Disable periodical listener refresh - this data now comes via websockets.
@@ -3706,7 +3706,7 @@ function updateChase(r) {
     }
 }
 
-function updateReceivers(r) {
+function updateReceivers(r, single) {
     if(!r) return;
     ls_receivers = true;
 
@@ -3748,23 +3748,24 @@ function updateReceivers(r) {
     }
 
     // clear old receivers
-    i = 0;
-    for(; i < receivers.length;) {
-        var e = receivers[i];
-        if(e.fresh) {
-            e.fresh = false;
-            i++;
-        }
-        else {
-            map.removeLayer(e.infobox);
-            receiverCanvas.removeLayer(e.marker);
+    if(single == false){
+        i = 0;
+        for(; i < receivers.length;) {
+            var e = receivers[i];
+            if(e.fresh) {
+                e.fresh = false;
+                i++;
+            }
+            else {
+                map.removeLayer(e.infobox);
+                receiverCanvas.removeLayer(e.marker);
 
-            // remove from arrays
-            receivers.splice(i,1);
-            receiver_names.splice(i,1);
+                // remove from arrays
+                receivers.splice(i,1);
+                receiver_names.splice(i,1);
+            }
         }
     }
-
     if(follow_vehicle !== null) drawLOSPaths(follow_vehicle);
 }
 
