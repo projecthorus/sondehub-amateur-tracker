@@ -463,6 +463,10 @@ $(window).ready(function() {
         updateTime(new Date());
     }, 1000);
 
+    // Update Tracker version info
+    $('#build_version').text("{VER}");
+    $('#build_date').text("{BUILD_DATE}");
+
     // resize elements if needed
     checkSize();
 
