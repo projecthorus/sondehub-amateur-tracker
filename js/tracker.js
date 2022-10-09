@@ -14,6 +14,8 @@ var clientTopic;
 var messageRate = 0;
 var messageRateAverage = 10;
 
+var receiversHidden = false;
+var chaseCarsHidden = false;
 
 var pledges = {};
 var pledges_loaded = false
@@ -3691,6 +3693,10 @@ function deleteChase(r) {
 function updateChase(r) {
     if(!r) return;
 
+    if(chaseCarsHidden == true){
+        return;
+    }
+
     var response = {};
     response.positions = {};
     var dataTemp = [];
@@ -3728,6 +3734,11 @@ function updateChase(r) {
 
 function updateReceivers(r, single) {
     if(!r) return;
+
+    if(receiversHidden==true){
+        return;
+    }
+
     ls_receivers = true;
 
     for (var i in r) {
