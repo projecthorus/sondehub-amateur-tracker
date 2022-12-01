@@ -2201,7 +2201,7 @@ function mapInfoBox_handle_prediction(event) {
     var altitude;
 
     if(offline.get('opt_imperial')) {
-        altitude = Math.round(alt*3.2808399) + " feet";
+        altitude = Math.round(data.alt*3.2808399) + " feet";
     } else {
         altitude = Math.round(data.alt) + " m";
     }
