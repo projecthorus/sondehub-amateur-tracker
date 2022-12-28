@@ -1632,7 +1632,7 @@ function createHysplit(callsign, adjustment, alt_color) {
 
     var lon = ((360 + (vehicle.curr_position.gps_lon % 360)) % 360)
 
-    var url = "https://predict.cusf.co.uk/api/v1/?profile=float_profile"
+    var url = "https://api.v2.sondehub.org/tawhiri?profile=float_profile"
         + "&launch_latitude=" + vehicle.curr_position.gps_lat
         + "&launch_longitude=" + lon
         + "&launch_altitude=" + (altitude-1)
