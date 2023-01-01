@@ -72,7 +72,7 @@ var updateCode = function() {
     params += "&amp;hidelist=" + ($("#opt_list").prop("checked") ? 0 : 1);
     params += "&amp;hidegraph=" + ($("#opt_graph").prop("checked") ? 0 : 1);
     params += "&amp;expandgraph=" + ($("#opt_graph_open").prop("checked") ? 1 : 0);
-    params += "&amp;q=" + encodeURIComponent($("#opt_filter").val());
+    params += "#!mt=Mapnik&amp;q=" + encodeURIComponent($("#opt_filter").val());
 
     code = code.replace("&amp;preview=1", params);
 
