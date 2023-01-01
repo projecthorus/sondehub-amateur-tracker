@@ -169,14 +169,14 @@ for(var idx in params) {
         case "embed":
             if(line[1] == "1") {
                 wvar.enabled = true;
-                if(!is_mobile) wvar.mode = 'All';
+                if(!is_mobile) wvar.mode = '3d';
             }
             break;
         case "hidelist": if(line[1] == "1") wvar.vlist = false; break;
         case "hidegraph": if(line[1] == "1") wvar.graph = false; break;
         case "expandgraph": if(line[1] == "1") wvar.graph_expanded = true; break;
         case "filter":
-            wvar.query = decodeURIComponent(line[1]);
+            wvar.query = decodeURIComponent(line[1]).replace(/;/g,",");
             $("header .search input[type='text']").val(wvar.query);
             break;
         case "nyan": wvar.nyan = true; break;
@@ -188,7 +188,7 @@ for(var idx in params) {
 
 // loads the tracker interface
 function trackerInit() {
-    $('#loading,#settingsbox,#aboutbox,#chasebox').hide(); // welcome screen
+    $('#loading,#settingsbox,#aboutbox,#embedbox,#chasebox').hide(); // welcome screen
     $('header,#main').show(); // interface elements
     checkSize();
 
@@ -959,7 +959,7 @@ $(window).ready(function() {
    $("header .search form").on('submit', function(e) {
        e.preventDefault();
 
-       var text = $("header .search input[type='text']").val();
+       var text = $("header .search input[type='text']").val().replace(/;/g,",");
 
        if(text === wvar.query) return;
 

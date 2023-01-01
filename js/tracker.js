@@ -526,7 +526,10 @@ function clean_refresh(text, force, history_step) {
     try {
         client.unsubscribe(clientTopic);
         if (wvar.query && sondePrefix.indexOf(wvar.query) == -1) {
-            var topic = "amateur/" + wvar.query;
+            // Generate array of filter entries.
+            var topic = wvar.query.split(",").map(function(el) { 
+                return 'amateur/' + el; 
+            });
             client.subscribe(topic);
             clientTopic = topic;
         } else {
@@ -3204,8 +3207,8 @@ function refresh() {
   var mode = wvar.mode.toLowerCase();
   mode = (mode == "position") ? "latest" : mode.replace(/ /g,"");
 
-  if (wvar.query && sondePrefix.indexOf(wvar.query) == -1) {
-    var data_str = "duration=3d&payload_callsign=" + encodeURIComponent(wvar.query);
+  if (wvar.query) {
+    var data_str = "duration=" + mode + "&payload_callsign=" + encodeURIComponent(wvar.query);
   } else {
     var data_str = "duration=" + mode;
   }
@@ -3216,13 +3219,15 @@ function refresh() {
     data: data_str,
     dataType: "json",
     success: function(data, textStatus) {
-        if (wvar.query != null && JSON.stringify(data).indexOf(wvar.query) == -1) {
-            refreshSingle(wvar.query);
-        } else {
+        // This check breaks multiple payload queries.
+        // Is this correct anyway? refreshSingle uses the /sonde/ API which is for radiosondes only?
+        // if (wvar.query != null && JSON.stringify(data).indexOf(wvar.query) == -1) {
+        //     refreshSingle(wvar.query);
+        // } else {
             response = formatData(data);
             update(response, true);   
             $("#stTimer").attr("data-timestamp", response.fetch_timestamp);
-        }
+        //}
         $("#stText").text("");
     },
     error: function() {
@@ -3238,6 +3243,20 @@ function refresh() {
         //console.log("WebSockets - Resuming Websockets updates after poll.")
         clearTimeout(periodical);
         ajax_inprogress = false;
+
+        if(wvar.query){
+            // If we have a query, pan the map to cover the payloads in that query.
+            var vehicle_query = wvar.query.replace(/;/g,',').split(',');
+            var query_positions = [];
+            for (k in vehicle_query){
+                veh = vehicle_query[k];
+                if(vehicles.hasOwnProperty(veh)){
+                    query_positions.push(vehicles[veh].positions[vehicles[veh].positions.length-1]);
+                }
+            }
+            map.fitBounds(query_positions, {'maxZoom': 8});
+        }
+
     }
   });
 }
@@ -3327,7 +3346,10 @@ function liveData() {
 
     function onConnect() {
         if (wvar.query && sondePrefix.indexOf(wvar.query) == -1) {
-            var topic = "amateur/" + wvar.query;
+            //var topic = "amateur/" + wvar.query;
+            var topic = wvar.query.split(",").map(function(el) { 
+                return 'amateur/' + el; 
+            });
             client.subscribe(topic);
             clientTopic = topic;
         } else {
@@ -3897,6 +3919,7 @@ function update(response, none) {
         return;
     }
 
+    // This is not required for sondehub-amateur?
     if (sondePrefix.indexOf(wvar.query) > -1) {
         for (var i = response.positions.position.length - 1; i >= 0; i--) {
             try {
