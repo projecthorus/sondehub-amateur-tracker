@@ -97,6 +97,9 @@ $(window).ready(function() {
     // filter
     $("#opt_filter").on('keyup', function() {
         updateCode();
+        // Force iframe refresh
+        var ifr = document.getElementsByName('embed_iframe')[0];
+        ifr.contentWindow.location.reload(true);
     });
 
     // vehicle list
@@ -215,7 +218,7 @@ $(window).ready(function() {
         <h1>Embed SondeHub-Amateur tracker on your page</h1>
         <h2>1. Options</h1>
         <fieldset>
-            <label for="opt_filter">Vehicle filter (;)</label>
+            <label for="opt_filter">Vehicle filter (, separated. Note: Filtering will not take effect in preview below.)</label>
             <input type="input" value="" id="opt_filter" size="40" />
             <br />
             <input type="checkbox" value="1" id="opt_list" />
@@ -244,7 +247,7 @@ $(window).ready(function() {
 
         <h2>4. Live preview</h1>
             <div id="iframe-box">
-            <iframe width="400px" height="500px" src="index.html?&preview=1" style="border:1px solid #00A3D3;border-radius:20px;"></iframe>
+            <iframe name="embed_iframe" width="400px" height="500px" src="index.html?&preview=1" style="border:1px solid #00A3D3;border-radius:20px;"></iframe>
             </div>
     </div>
 </body>
