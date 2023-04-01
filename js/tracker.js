@@ -82,7 +82,11 @@ var modeList = [
     "6h",
     "12h",
     "1d",
-    "3d"
+    "3d",
+    "7d", // New time periods, as of 2023-04, only available if filtering is on.
+    "31d",
+    "186d",
+    "366d"
 ];
 var modeDefault = "12h";
 var modeDefaultMobile = "12h";
@@ -636,7 +640,7 @@ function load() {
         onAdd: function(map) {
             var div = L.DomUtil.create('div');
     
-            div.innerHTML = '<select name="timeperiod" id="timeperiod" style="width:auto !important;height:30px;" onchange="clean_refresh(this.value)"><option value="0">Live Only</option><option value="1h">1 hour</option><option value="3h">3 hours</option><option value="6h">6 hours</option><option value="12h">12 hours</option><option value="1d" selected="selected">1 day</option><option value="3d">3 days</option></select>';
+            div.innerHTML = '<select name="timeperiod" id="timeperiod" style="width:auto !important;height:30px;" onchange="clean_refresh(this.value)"><option value="0">Live Only</option><option value="1h">1 hour</option><option value="3h">3 hours</option><option value="6h">6 hours</option><option value="12h">12 hours</option><option value="1d" selected="selected">1 day</option><option value="3d">3 days</option><option value="7d">7 days</option></select>';
             div.innerHTML.onload = setTimeValue();
 
             return div;
