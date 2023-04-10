@@ -57,7 +57,8 @@ var car_index = 0;
 var car_colors = ["blue", "red", "green", "yellow", "teal", "purple"];
 var balloon_index = 0;
 var balloon_colors_name = ["red", "blue", "green", "yellow", "purple", "orange", "cyan"];
-var balloon_colors = ["#f00", "blue", "green", "#FDFC30", "#c700e6", "#ff8a0f", "#0fffca"];
+// Yellow was #FDFC30, darker version is "#caca02"
+var balloon_colors = ["#f00", "blue", "green", "#caca02", "#c700e6", "#ff8a0f", "#0fffca"];
 
 var nyan_color_index = 0;
 var nyan_colors = ['nyan', 'nyan-coin', 'nyan-mon', 'nyan-pirate', 'nyan-cool', 'nyan-tothemax', 'nyan-pumpkin', 'nyan-afro', 'nyan-coin', 'nyan-mummy'];
@@ -83,13 +84,14 @@ var modeList = [
     "12h",
     "1d",
     "3d",
-    "7d", // New time periods, as of 2023-04, only available if filtering is on.
-    "31d",
+    "7d", 
+    "31d", // New time periods, as of 2023-04, only available if filtering is on.
     "186d",
     "366d"
 ];
 var modeDefault = "12h";
 var modeDefaultMobile = "12h";
+var longModes = ['31d', '186d', '366d']; // These modes only available if filtering is on.
 
 // order of map elements
 var Z_RANGE = 1;
@@ -640,7 +642,7 @@ function load() {
         onAdd: function(map) {
             var div = L.DomUtil.create('div');
     
-            div.innerHTML = '<select name="timeperiod" id="timeperiod" style="width:auto !important;height:30px;" onchange="clean_refresh(this.value)"><option value="0">Live Only</option><option value="1h">1 hour</option><option value="3h">3 hours</option><option value="6h">6 hours</option><option value="12h">12 hours</option><option value="1d" selected="selected">1 day</option><option value="3d">3 days</option><option value="7d">7 days</option></select>';
+            div.innerHTML = '<select name="timeperiod" id="timeperiod" style="width:auto !important;height:30px;" onchange="clean_refresh(this.value)"><option value="0">Live Only</option><option value="1h">1 hour</option><option value="3h">3 hours</option><option value="6h">6 hours</option><option value="12h">12 hours</option><option value="1d" selected="selected">1 day</option><option value="3d">3 days</option><option value="7d">7 days</option><option value="31d" disabled>1 month</option><option value="186d" disabled>6 months</option><option value="366d" disabled>1 year</option></select>';
             div.innerHTML.onload = setTimeValue();
 
             return div;
@@ -802,6 +804,22 @@ function load() {
 
     }, 500);
 }
+
+function setLongTimePeriods(state){
+    // Enable or disable the 'long' timeperiod settings (>1 month)
+    $("#timeperiod option").each(function() {
+        var $thisOption = $(this);
+    
+        if(longModes.includes($thisOption.val())){
+            if(state){
+                $thisOption.attr("disabled", false);
+            } else {
+                $thisOption.attr("disabled", true);
+            }
+        }
+    });
+}
+
 
 function setTimeValue() {   
     setTimeout(function() {
@@ -1827,7 +1845,7 @@ function redrawPrediction(vcallsign) {
     } else {
         vehicle.prediction_polyline = new L.Wrapped.Polyline(line, {
             color: balloon_colors[vehicle.color_index],
-            opacity: 0.4,
+            opacity: 0.5,
             weight: 3,
         }).addTo(map);
         vehicle.prediction_polyline.on('click', function (e) {
@@ -1924,10 +1942,20 @@ function updatePolyline(vcallsign) {
 }
 
 function drawAltitudeProfile(c1, c2, series, alt_max, chase) {
+    // Updated 2023-04-10 to make use of position time data to set 
+    // the x-coordinate. This helps resolve issues with backlog vs live data.
     alt_max = (alt_max < 2000) ? 2000 : alt_max;
     var alt_list = series.data;
+    var first_time = alt_list[0][0];
     var len = alt_list.length;
     var real_len = len - series.nulls;
+    var last_time = alt_list[len-1][0];
+    var time_range = last_time - first_time;
+
+    // Only attempt to draw if we have more than 1 data point.
+    if(len == 1){
+        return;
+    }
 
     var ctx1 = c1.getContext("2d");
     var ctx2 = c2.getContext("2d");
@@ -1960,15 +1988,18 @@ function drawAltitudeProfile(c1, c2, series, alt_max, chase) {
         ctx2.strokeStyle= "#f53333";
     }
 
-    var xt1 = (cw1 - (2 * ratio)) / real_len;
+    //var xt1 = (cw1 - (2 * ratio)) / real_len;
+    var xt1 = (cw1 - (2 * ratio)) / time_range;
     var yt1 = (ch1 - (6 * ratio)) / alt_max;
-    var xt2 = (cw2 - (2 * ratio)) / real_len;
+    //var xt2 = (cw2 - (2 * ratio)) / real_len;
+    var xt2 = (cw2 - (2 * ratio)) / time_range;
     var yt2 = (ch2 - (6 * ratio)) / alt_max;
 
     xt1 = (xt1 > 1) ? 1 : xt1;
     yt1 = (yt1 > 1) ? 1 : yt1;
     xt2 = (xt2 > 1) ? 1 : xt2;
     yt2 = (yt2 > 1) ? 1 : yt2;
+
 
     ctx1.beginPath();
     ctx2.beginPath();
@@ -1985,26 +2016,33 @@ function drawAltitudeProfile(c1, c2, series, alt_max, chase) {
     if(cw1*2 > real_len) {
         for(i = 0; i < real_len; i++) {
             alt = alt_list[i][1];
+            alt_time = last_time - alt_list[i][0];
 
-            ctx1.lineTo(1+((i+1)*xt1), ch1 - (alt * yt1));
-            ctx2.lineTo(1+((i+1)*xt2), ch2 - (alt * yt2));
+            // 
+            //ctx1.lineTo(1+((i+1)*xt1), ch1 - (alt * yt1));
+            //ctx2.lineTo(1+((i+1)*xt2), ch2 - (alt * yt2));
+            ctx1.lineTo(cw1-(alt_time*xt1), ch1 - (alt * yt1));
+            ctx2.lineTo(cw2-(alt_time*xt2), ch2 - (alt * yt2));
 
             if(i+2 < len && alt_list[i+2][1] === null) i += 2;
         }
     }
     // if they are too many, downsample to keep the loop short
     else {
-        xt1 = 0.5;
-        xt2 = 0.16;
+        //xt1 = 0.5;
+        //xt2 = 0.16;
         var max = cw1 * 2;
         var step = (1.0*len) / max;
 
         for(i = 0; i < max; i++) {
             alt = alt_list[Math.floor(i*step)][1];
+            alt_time = last_time - alt_list[Math.floor(i*step)][0];
             if(alt === null) continue;
 
-            ctx1.lineTo(1+((i+1)*xt1), ch1 - (alt * yt1));
-            ctx2.lineTo(1+((i+1)*xt2), ch2 - (alt * yt2));
+            //ctx1.lineTo(1+((i+1)*xt1), ch1 - (alt * yt1));
+            //ctx2.lineTo(1+((i+1)*xt2), ch2 - (alt * yt2));
+            ctx1.lineTo(cw1-(alt_time*xt1), ch1 - (alt * yt1));
+            ctx2.lineTo(cw2-(alt_time*xt2), ch2 - (alt * yt2));
         }
 
         // fix index for fill
@@ -2015,8 +2053,13 @@ function drawAltitudeProfile(c1, c2, series, alt_max, chase) {
     ctx2.stroke();
 
     // close the path, so it can be filled
-    ctx1.lineTo(1+((i+1)*xt1), ch1);
-    ctx2.lineTo(1+((i+1)*xt2), ch2);
+    //ctx1.lineTo(1+((i+1)*xt1), ch1);
+    //ctx2.lineTo(1+((i+1)*xt2), ch2);
+    end_x1 = cw1 - (last_time - alt_list[len-1][0])*xt1;
+    end_x2 = cw2 - (last_time - alt_list[len-1][0])*xt2;
+    
+    ctx1.lineTo(end_x1, ch1);
+    ctx2.lineTo(end_x2, ch2);
     ctx1.lineTo(0,ch1);
     ctx2.lineTo(0,ch2);
 
@@ -3213,8 +3256,10 @@ function refresh() {
 
   if (wvar.query) {
     var data_str = "duration=" + mode + "&payload_callsign=" + encodeURIComponent(wvar.query);
+    setLongTimePeriods(true);
   } else {
     var data_str = "duration=" + mode;
+    setLongTimePeriods(false);
   }
 
   ajax_positions = $.ajax({
