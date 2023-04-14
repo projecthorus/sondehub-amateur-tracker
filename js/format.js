@@ -26,7 +26,8 @@ var excludedFields = [
     "uploader_position",
     "uploader_radio",
     "uploader_antenna",
-    "raw"
+    "raw",
+    "aprs_tocall"
 ];
 
 var uniqueKeys = {
