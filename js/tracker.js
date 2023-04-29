@@ -3,7 +3,10 @@ var position_id = 0;
 var newdata_url = "https://api.v2.sondehub.org/amateur/telemetry";
 var receivers_url = "https://api.v2.sondehub.org/amateur/listeners/telemetry";
 var predictions_url = "https://api.v2.sondehub.org/amateur/predictions?vehicles=";
+// Grafana dashboard for most payloads
 var grafana_url = "https://grafana.v2.sondehub.org/d/HJgOZLq7k/basic?";
+// Grafana dashboard for slower update-rate payloads (APRS, WSPR)
+var grafana_aprs_url = "https://grafana.v2.sondehub.org/d/Lwvk1Hy4k/aprs-telemetry?";
 
 var livedata = "wss://ws-reader.v2.sondehub.org/";
 var clientID = "SondeHub-Tracker-" + Math.floor(Math.random() * 10000000000);
@@ -1496,7 +1499,29 @@ function updateVehicleInfo(vcallsign, newPosition) {
   }
 
   // Generate Grafana Link
-  var grafana_dashboard_url = grafana_url + "var-Payload=" + vcallsign + "&from=" + vehicle.positions_ts[0] + "&to=" + vehicle.positions_ts[vehicle.positions_ts.length-1] + "&orgId=1";
+
+  // Use to-time = now, and enable refresh if the data age is < 30 min old.
+  if ((timeNow - timeSent) < (30*60*1000)){
+    var grafana_to_time = "now";
+    var grafana_refresh = "&refresh=1m";
+  } else {
+    var grafana_to_time = vehicle.positions_ts[vehicle.positions_ts.length-1];
+    var grafana_refresh = "";
+  }
+
+  // Use the default grafana URL, unless the payload is using APRS.
+  var grafana_base_url = grafana_url;
+
+  if(vehicle.vehicle_type != "car"){
+    if(vehicle.curr_position.data.hasOwnProperty('modulation')){
+        if(vehicle.curr_position.data.modulation.includes('APRS') || vehicle.curr_position.data.modulation.includes('WSPR')){
+            grafana_base_url = grafana_aprs_url;
+        }
+    }
+  }
+
+  // Finally generate the URL to use for the 'Plots' button.
+  var grafana_dashboard_url = grafana_base_url + "var-Payload=" + vcallsign + "&from=" + vehicle.positions_ts[0] + "&to=" + grafana_to_time + "&orgId=1" + grafana_refresh;
 
   //desktop
   var a    = '<div class="header">' +
