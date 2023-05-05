@@ -2281,10 +2281,27 @@ function mapInfoBox_handle_prediction(event) {
         altitude = Math.round(data.alt) + " m";
     }
 
+    var coords_text;
+    var ua =  navigator.userAgent.toLowerCase();
+
+    // determine how to link the vehicle coordinates to a native app, if on a mobile device
+    if(ua.indexOf('iphone') > -1) {
+        coords_text = '<a href="maps://?q='+data.lat+','+data.lon+'">' +
+                      roundNumber(data.lat, 5) + ', ' + roundNumber(data.lon, 5) + '</a>';
+    } else if(ua.indexOf('android') > -1) {
+        coords_text = '<a href="geo:'+data.lat+','+data.lon+'?q='+data.lat+','+data.lon+'(Prediction)">' +
+                      roundNumber(data.lat, 5) + ', ' + roundNumber(data.lon, 5) +'</a>';
+    } else {
+        coords_text = '<a href="https://www.google.com/maps/search/?api=1&query='+data.lat+','+data.lon+'" target="_blank" rel="noopener noreferrer">' +
+            roundNumber(data.lat, 5) + ', ' + roundNumber(data.lon, 5) +'</a>';
+    }
+
     mapInfoBox.setContent("<pre>" +
                         formatDate(new Date(parseInt(data.time) * 1000), true) + "\n\n" +
                         "<b>Altitude:</b> " + altitude + "\n" +
-                        "<b>Location:</b> <a href='geo:" + data.lat.toFixed(5) + "," + data.lon.toFixed(5) + "'>" + data.lat.toFixed(5) + ", " + data.lon.toFixed(5) + "</a>\n" + 
+                        "<b>Location:</b> " + coords_text + 
+                        //<a href='geo:" + data.lat.toFixed(5) + "," + data.lon.toFixed(5) + "'>" + data.lat.toFixed(5) + ", " + data.lon.toFixed(5) + "</a>"
+                        "\n" + 
                         event.target.pred_type +
                         "</pre>"
                         );
