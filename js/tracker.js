@@ -1650,7 +1650,8 @@ function generateHysplit(callsign) {
     alt_min = alt_max*-1;
     for (var alt = alt_min; alt <= alt_max; alt+=alt_step) {
         alt_norm = (alt+alt_max)/(alt_max*2.0);
-        alt_color = ConvertRGBtoHex(evaluate_cmap(alt_norm, 'turbo'));
+        //alt_color = ConvertRGBtoHex(evaluate_cmap(alt_norm, 'turbo'));
+        alt_color = ConvertRGBtoHex(evaluate_cmap(alt_norm, 'pride'));
         createHysplit(callsign, alt, alt_color);
     }
 }
