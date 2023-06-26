@@ -1527,7 +1527,15 @@ function updateVehicleInfo(vcallsign, newPosition) {
 
   // Decide if we should enable the 'Float' button.
   // Enable this based on either a very low ascent rate, or if the payload is using WSPR (in which case it's likely a picoballoon)
-  var float_button_enabled = (newPosition.gps_alt > 3000 && vehicle.ascent_rate < 1 && vehicle.ascent_rate > -1) || (vehicle.curr_position.data.modulation.includes('WSPR'));
+  var float_button_enabled = (newPosition.gps_alt > 3000 && vehicle.ascent_rate < 1 && vehicle.ascent_rate > -1);
+
+  if(vehicle.vehicle_type != "car"){
+    if(vehicle.curr_position.data.hasOwnProperty('modulation')){
+        if(vehicle.curr_position.data.modulation.includes('WSPR')){
+            float_button_enabled = true;
+        }
+    }
+  }
 
 
   //desktop
