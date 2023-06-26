@@ -1525,6 +1525,11 @@ function updateVehicleInfo(vcallsign, newPosition) {
   // Finally generate the URL to use for the 'Plots' button.
   var grafana_dashboard_url = grafana_base_url + "var-Payload=" + vcallsign + "&from=" + vehicle.positions_ts[0] + "&to=" + grafana_to_time + "&orgId=1" + grafana_refresh;
 
+  // Decide if we should enable the 'Float' button.
+  // Enable this based on either a very low ascent rate, or if the payload is using WSPR (in which case it's likely a picoballoon)
+  var float_button_enabled = (newPosition.gps_alt > 3000 && vehicle.ascent_rate < 1 && vehicle.ascent_rate > -1) || (vehicle.curr_position.data.modulation.includes('WSPR'));
+
+
   //desktop
   var a    = '<div class="header">' +
            '<span>' + sonde_type + vcallsign + ' <i class="icon-target"></i></span>' +
@@ -1535,7 +1540,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
            '<span class="vbutton path '+((vehicle.polyline_visible) ? 'active' : '')+'" data-vcallsign="'+vcallsign+'"' + ' style="top:'+(vehicle.image_src_size[1]+55)+'px">Path</span>' +
            ((vehicle.vehicle_type!="car") ? '<span class="sbutton" onclick="shareVehicle(\'' + vcallsign + '\')" style="top:'+(vehicle.image_src_size[1]+85)+'px">Share</span>' : '') + 
            ((vehicle.vehicle_type!="car") ? '<span class="sbutton" onclick="openURL(\'' + grafana_dashboard_url + '\')" style="top:'+(vehicle.image_src_size[1]+115)+'px">Plots</span>' : '') + 
-           ((vehicle.vehicle_type!="car" && newPosition.gps_alt > 3000 && vehicle.ascent_rate < 1 && vehicle.ascent_rate > -1) ? '<span class="sbutton hysplit '+((vehicle.prediction_hysplit_visible) ? 'active' : '')+'" data-vcallsign="' + vcallsign + '" style="top:'+(vehicle.image_src_size[1]+145)+'px">Float</span>' : '') +
+           ((vehicle.vehicle_type!="car" && float_button_enabled) ? '<span class="sbutton hysplit '+((vehicle.prediction_hysplit_visible) ? 'active' : '')+'" data-vcallsign="' + vcallsign + '" style="top:'+(vehicle.image_src_size[1]+145)+'px">Float</span>' : '') +
            '<div class="left">' +
            '<dl>';
   //mobile
@@ -1548,7 +1553,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
            '<span class="vbutton path '+((vehicle.polyline_visible) ? 'active' : '')+'" data-vcallsign="'+vcallsign+'"' + ' style="top:55px">Path</span>' +
            ((vehicle.vehicle_type!="car") ? '<span class="sbutton" onclick="shareVehicle(\'' + vcallsign + '\')" style="top:85px">Share</span>' : '') +
            ((vehicle.vehicle_type!="car") ? '<span class="sbutton" onclick="openURL(\'' + grafana_dashboard_url + '\')" style="top:115px">Plots</span>' : '') + 
-           ((vehicle.vehicle_type!="car" && newPosition.gps_alt > 3000 && vehicle.ascent_rate < 1 && vehicle.ascent_rate > -1) ? '<span class="sbutton hysplit '+((vehicle.prediction_hysplit_visible) ? 'active' : '')+'" data-vcallsign="' + vcallsign + '" style="top:145px">Float</span>' : '') +
+           ((vehicle.vehicle_type!="car" && float_button_enabled) ? '<span class="sbutton hysplit '+((vehicle.prediction_hysplit_visible) ? 'active' : '')+'" data-vcallsign="' + vcallsign + '" style="top:145px">Float</span>' : '') +
            '<div class="left">' +
            '<dl>';
   var b    = '</dl>' +
