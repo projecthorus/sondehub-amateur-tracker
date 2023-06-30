@@ -5,8 +5,10 @@ var receivers_url = "https://api.v2.sondehub.org/amateur/listeners/telemetry";
 var predictions_url = "https://api.v2.sondehub.org/amateur/predictions?vehicles=";
 // Grafana dashboard for most payloads
 var grafana_url = "https://grafana.v2.sondehub.org/d/HJgOZLq7k/basic?";
-// Grafana dashboard for slower update-rate payloads (APRS, WSPR)
+// Grafana dashboard for slower update-rate payloads (APRS)
 var grafana_aprs_url = "https://grafana.v2.sondehub.org/d/Lwvk1Hy4k/aprs-telemetry?";
+// Grafana dashboard for WSPR flight
+var grafana_wspr_url = "https://grafana.v2.sondehub.org/d/e4571f1f-b51e-4e02-b97a-dcd198b49560/wspr-balloon-telemetry?";
 
 var livedata = "wss://ws-reader.v2.sondehub.org/";
 var clientID = "SondeHub-Tracker-" + Math.floor(Math.random() * 10000000000);
@@ -1516,8 +1518,17 @@ function updateVehicleInfo(vcallsign, newPosition) {
 
   if(vehicle.vehicle_type != "car"){
     if(vehicle.curr_position.data.hasOwnProperty('modulation')){
-        if(vehicle.curr_position.data.modulation.includes('APRS') || vehicle.curr_position.data.modulation.includes('WSPR')){
+        if(vehicle.curr_position.data.modulation.includes('APRS')){
             grafana_base_url = grafana_aprs_url;
+        }
+
+        if(vehicle.curr_position.data.modulation.includes('WSPR')){
+            grafana_base_url = grafana_wspr_url;
+        }
+    }
+    if(vehicle.curr_position.data.hasOwnProperty('comment')){
+        if(vehicle.curr_position.data.comment.includes('WSPR')){
+            grafana_base_url = grafana_wspr_url;
         }
     }
   }
@@ -1532,6 +1543,11 @@ function updateVehicleInfo(vcallsign, newPosition) {
   if(vehicle.vehicle_type != "car"){
     if(vehicle.curr_position.data.hasOwnProperty('modulation')){
         if(vehicle.curr_position.data.modulation.includes('WSPR')){
+            float_button_enabled = true;
+        }
+    }
+    if(vehicle.curr_position.data.hasOwnProperty('comment')){
+        if(vehicle.curr_position.data.comment.includes('WSPR')){
             float_button_enabled = true;
         }
     }
@@ -1658,8 +1674,14 @@ function generateHysplit(callsign) {
     hideHysplit(callsign)
     var vehicle = vehicles[callsign];
     vehicle.prediction_hysplit_visible = true;
-    alt_max = 1000;
-    alt_step = 100;
+    // If requested, constrain the float prediction altitudes to a narrower range.
+    if(offline.get("opt_float_constrained")){
+        alt_max = 100;
+        alt_step = 20;
+    } else {
+        alt_max = 1000;
+        alt_step = 100;
+    }
     alt_min = alt_max*-1;
     for (var alt = alt_min; alt <= alt_max; alt+=alt_step) {
         alt_norm = (alt+alt_max)/(alt_max*2.0);
