@@ -731,6 +731,7 @@ $(window).ready(function() {
         '#sw_hide_aprs',
         "#sw_nowelcome",
         "#sw_interpolate",
+        "#sw_float_constrained"
     ];
 
     // applies functionality when switches are toggled
