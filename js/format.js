@@ -27,7 +27,8 @@ var excludedFields = [
     "uploader_radio",
     "uploader_antenna",
     "raw",
-    "aprs_tocall"
+    "aprs_tocall",
+    "telemetry_hidden"
 ];
 
 var uniqueKeys = {
@@ -37,7 +38,8 @@ var uniqueKeys = {
 }
 
 function formatData(data) {
-    var hideAprs = offline.get('opt_hide_aprs');
+    var showAprs = offline.get('opt_show_aprs');
+    var showTesting = offline.get("opt_show_testing");
     var response = {};
     response.positions = {};
     var dataTemp = [];
@@ -70,7 +72,8 @@ function formatData(data) {
                         } 
                     }
                     for (let entry in data[key][i].uploaders) {
-                        if (data[key][i].software_name == "aprs") {
+                        // This check should probably be done using a modulation field, but this still works I guess..
+                        if (data[key][i].software_name.includes("APRS")) {
                             aprsflag = true;
                             var stations = data[key][i].uploaders[entry].uploader_callsign.split(",");
                             for (let uploader in stations) {
@@ -96,9 +99,15 @@ function formatData(data) {
                     if (dataTempEntry.gps_alt > maximumAltitude) {
                         maximumAltitude = dataTempEntry.gps_alt;
                     }
-                    if (maximumAltitude < 1500 && aprsflag && !hideAprs) {
+                    // APRS Altitude filter.
+                    if (maximumAltitude < 1500 && aprsflag && !showAprs) {
                         continue;
                     }
+                    // Testing payload filter.
+                    if (data[key][i].telemetry_hidden && !showTesting){
+                        continue;
+                    }
+                    //
                     dataTempEntry.gps_lat = parseFloat((data[key][i].lat).toPrecision(8));
                     dataTempEntry.gps_lon = parseFloat((data[key][i].lon).toPrecision(8));
                     if (dataTempEntry.gps_lat == 0 && dataTempEntry.gps_lon == 0) {

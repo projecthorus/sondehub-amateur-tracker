@@ -728,7 +728,8 @@ $(window).ready(function() {
         '#sw_hide_horizon',
         '#sw_hide_titles',
         '#sw_selective_sidebar',
-        '#sw_hide_aprs',
+        '#sw_show_aprs',
+        '#sw_show_testing',
         "#sw_nowelcome",
         "#sw_interpolate",
         "#sw_float_constrained"
@@ -826,7 +827,10 @@ $(window).ready(function() {
             case "opt_selective_sidebar":
                 sidebar_update();
                 break;
-            case "opt_hide_aprs":
+            case "opt_show_aprs":
+                clean_refresh(wvar.mode, true, false);
+                break;
+            case "opt_show_testing":
                 clean_refresh(wvar.mode, true, false);
                 break;
             case "opt_interpolate":
