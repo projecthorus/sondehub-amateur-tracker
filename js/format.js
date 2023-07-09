@@ -107,6 +107,14 @@ function formatData(data) {
                     if (data[key][i].telemetry_hidden && !showTesting){
                         continue;
                     }
+                    // No GPS lock filter. Filter out positions with sats = 0, if sats is provided.
+                    // The historical data API will do this already, but we need this to filter out data
+                    // coming in via websockets.
+                    if (data[key][i].hasOwnProperty("sats")){
+                        if (data[key][i].sats == 0){
+                            continue;
+                        }
+                    }
                     //
                     dataTempEntry.gps_lat = parseFloat((data[key][i].lat).toPrecision(8));
                     dataTempEntry.gps_lon = parseFloat((data[key][i].lon).toPrecision(8));
