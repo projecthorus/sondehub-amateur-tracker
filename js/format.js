@@ -145,6 +145,28 @@ function formatData(data) {
                         }
                     }
 
+                    // Payload data post-processing, where we can modify / add data elements if needed.
+
+                    // Determine if this payload is a WSPR payload
+                    // We determine this through either the modulation field, or comment field.
+                    var wspr_payload = false;
+                    if (data[key][i].hasOwnProperty("modulation")){
+                        if(data[key][i].modulation.includes("WSPR")){
+                            wspr_payload = true;
+                        }
+                    }
+                    if (data[key][i].hasOwnProperty("comment")){
+                        if(data[key][i].comment.includes("WSPR")){
+                            wspr_payload = true;
+                        }
+                    }
+
+                    // For WSPR payloads, calculate solar elevation.
+                    if(wspr_payload){
+                        dataTempEntry.data['solar_elevation'] = (SunCalc.getPosition(stringToDateUTC(dataTempEntry.gps_time), dataTempEntry.gps_lat, dataTempEntry.gps_lon).altitude/rad).toFixed(1);
+                    }
+
+
                     dataTemp.push(dataTempEntry);
                 }
             }
