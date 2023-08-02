@@ -28,7 +28,8 @@ var excludedFields = [
     "uploader_antenna",
     "raw",
     "aprs_tocall",
-    "telemetry_hidden"
+    "telemetry_hidden",
+    "upload_time"
 ];
 
 var uniqueKeys = {
