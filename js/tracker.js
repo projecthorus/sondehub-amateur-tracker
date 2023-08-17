@@ -3920,8 +3920,58 @@ function updateReceivers(r, single) {
                 receiver.lon = lon;
                 receiver.alt = alt;
                 receiver.age = age.toISOString();
-                receiver.description = "<font style='font-size: 13px'>"+receiver.name+"</font><br/><font size='-2'><BR><B>Software: </B>" + last.software_name + "-" + last.software_version
-                + "<BR><B>Radio: </B>" + last.uploader_radio + "<BR><B>Antenna: </B>" + last.uploader_antenna + "<BR><B>Last Contact: </B>" + last.ts + "Z<BR></font>";
+
+                var receiver_description_html = document.createElement("p")
+                var receiver_name = document.createElement("font")
+                receiver_name.style.fontSize = "13px"
+                receiver_name.textContent = receiver.name
+                receiver_description_html.appendChild(receiver_name)
+                receiver_description_html.appendChild(document.createElement("br"))
+
+                var subSection = document.createElement("font")
+                subSection.style.fontSize = "-2"
+                var radioSoftware = document.createElement("b")
+                radioSoftware.textContent = "Software: "
+                subSection.appendChild(radioSoftware)
+
+                var receiverSoftware = document.createTextNode(last.software_name + "-" + last.software_version)
+                subSection.appendChild(receiverSoftware)
+
+                subSection.appendChild(document.createElement("br"))
+                
+                if (last.uploader_radio){
+                    var radioHeading = document.createElement("b")
+                    radioHeading.textContent = "Radio: "
+                    subSection.appendChild(radioHeading)
+               
+                    var uploaderRadio = document.createTextNode(last.uploader_radio)
+                    subSection.appendChild(uploaderRadio)
+
+                    subSection.appendChild(document.createElement("br"))
+                }
+
+                
+                if (last.uploader_antenna){
+                    var antennaHeading = document.createElement("b")
+                    antennaHeading.textContent = "Antenna: "
+                    subSection.appendChild(antennaHeading)
+
+                    var uploaderAntenna = document.createTextNode(last.uploader_antenna)
+                    subSection.appendChild(uploaderAntenna)
+
+                    subSection.appendChild(document.createElement("br"))
+                }
+
+                var lastContactHeading = document.createElement("b")
+                lastContactHeading.textContent = "Last Contact: "
+                subSection.appendChild(lastContactHeading)
+
+                var lastContact = document.createTextNode(last.ts + "Z")
+                subSection.appendChild(lastContact)
+
+                receiver_description_html.appendChild(subSection)
+
+                receiver.description = receiver_description_html.innerHTML;
                 receiver.fresh = true;
 
                 updateReceiverMarker(receiver);
