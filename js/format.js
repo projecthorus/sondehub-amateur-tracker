@@ -29,7 +29,8 @@ var excludedFields = [
     "raw",
     "aprs_tocall",
     "telemetry_hidden",
-    "upload_time"
+    "upload_time",
+    "raw_payload"
 ];
 
 var uniqueKeys = {
