@@ -1466,6 +1466,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
   if($.type(newPosition.callsign) === "string"){
       // Single callsign entry, as a string (chase cars)
       callsign_list = newPosition.callsign;
+      num_callsigns = 1;
   } else {
     // Multiple callsigns, as an object
     for(var rxcall in newPosition.callsign){
@@ -1489,7 +1490,14 @@ function updateVehicleInfo(vcallsign, newPosition) {
         }
         callsign_list.push(_new_call); // catch cases where there are no fields
     }
+    num_callsigns = callsign_list.length;
     callsign_list = callsign_list.join("<br>");
+  }
+
+  if (num_callsigns > 1){
+    num_callsigns = " (" + num_callsigns + ")";
+  } else {
+    num_callsigns = "";
   }
 
   var timeNow = new Date();
@@ -1584,7 +1592,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
            '</div>' + // right
            '</div>' + // data
            '';
-  var c    = '<dt class="receivers">Received <i class="friendly-dtime" data-timestamp='+timeChosen+'></i> via:</dt><dd class="receivers">' +
+  var c    = '<dt class="receivers">Received <i class="friendly-dtime" data-timestamp='+timeChosen+'></i> via' + num_callsigns + ':</dt><dd class="receivers">' +
            callsign_list + '</dd>';
 
   if(!newPosition.callsign) c = '';
