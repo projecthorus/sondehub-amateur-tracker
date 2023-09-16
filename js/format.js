@@ -141,7 +141,7 @@ function formatData(data) {
                             continue;
                         }
                         if (uniqueKeys.hasOwnProperty(field)) {
-                            dataTempEntry.data[field] = data[key][i][field].toFixed(uniqueKeys[field].precision);
+                            dataTempEntry.data[field] = parseFloat(data[key][i][field]).toFixed(uniqueKeys[field].precision);
                         } else {
                             dataTempEntry.data[field] = data[key][i][field];
                         }
