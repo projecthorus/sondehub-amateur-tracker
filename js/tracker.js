@@ -3327,6 +3327,7 @@ var ajax_positions_single_new = null;
 var ajax_inprogress = false;
 var ajax_inprogress_single = false;
 var ajax_inprogress_single_new = false;
+var ajax_positions_first_update_complete = false;
 
 function refresh() {
   if(ajax_inprogress) {
@@ -3380,6 +3381,12 @@ function refresh() {
         //console.log("WebSockets - Resuming Websockets updates after poll.")
         clearTimeout(periodical);
         ajax_inprogress = false;
+
+        // refresh predictions has to run after positions otherwise the data won't update correctly - but we only want to run it once because websockets
+        if (ajax_positions_first_update_complete == false) {
+            refreshPredictions();
+            ajax_positions_first_update_complete = true;
+        } 
 
         if(wvar.query){
             // If we have a query, pan the map to cover the payloads in that query.
@@ -3498,6 +3505,7 @@ function liveData() {
         // To revert listener-via-websockets change, comment out this line,
         // and un-comment the 'Disable periodical listener refresh' lines further below.
         client.subscribe("amateur-listener/#");
+        client.subscribe("amateur-prediction/#");
 
         clientConnected = true;
         $("#stText").text("websocket |");
@@ -3562,7 +3570,25 @@ function liveData() {
                     } else {
                         updateReceivers(formatted_frame, single=true);
                     }
+                } else if (message.topic.startsWith("amateur-prediction")) {
+                    var frame = JSON.parse(message.payloadString.toString());
 
+                    var pred_data = [
+                        {
+                            "vehicle": frame.payload_callsign,
+                            "time": frame.datetime,
+                            "latitude": frame.position[1],
+                            "longitude": frame.position[0],
+                            "altitude": frame.altitude,
+                            "ascent_rate": frame.ascent_rate,
+                            "descent_rate": frame.descent_rate,
+                            "burst_altitude": frame.burst_altitude,
+                            "descending": frame.descending ? 1 : 0,
+                            "landed": frame.landed ? 1 : 0,
+                            "data": JSON.stringify(frame.data)
+                        }
+                    ]
+                    updatePredictions(pred_data);
                 } else {
                     // Message is payload telemetry
 
@@ -3699,12 +3725,6 @@ function refreshNewReceivers(initial, serial) {
 var ajax_predictions = null;
 
 function refreshPredictions() {
-    if(ajax_inprogress) {
-      clearTimeout(periodical_predictions);
-      periodical_predictions = setTimeout(refreshPredictions, 1000);
-      return;
-    }
-
     ajax_predictions = $.ajax({
         type: "GET",
         url: predictions_url + encodeURIComponent(wvar.query),
@@ -3716,15 +3736,11 @@ function refreshPredictions() {
         error: function() {
         },
         complete: function(request, textStatus) {
-            clearTimeout(periodical_predictions);
-            // TODO - Switch this to websockets as well.
-            periodical_predictions = setTimeout(refreshPredictions, 60 * 1000);
         }
     });
 }
 
 var periodical, periodical_focus, periodical_focus_new, periodical_receivers, periodical_listeners;
-var periodical_predictions = null;
 var timer_seconds = 30;
 
 function startAjax() {
@@ -3736,7 +3752,6 @@ function startAjax() {
     clearTimeout(periodical_focus);
     clearTimeout(periodical_focus_new);
     clearTimeout(periodical_receivers);
-    clearTimeout(periodical_predictions);
 
     //periodical = setInterval(refresh, timer_seconds * 1000);
     refresh();
@@ -3761,8 +3776,6 @@ function stopAjax() {
     ajax_inprogress_single_new = false;
     if(ajax_positions_single_new) ajax_positions_single_new.abort();
 
-    clearTimeout(periodical_predictions);
-    periodical_predictions = null;
     if(ajax_predictions) ajax_predictions.abort();
 }
 
@@ -4200,7 +4213,6 @@ function update(response, none) {
 
             }
 
-            if(periodical_predictions === null) refreshPredictions();
         },
 
     };
