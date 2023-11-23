@@ -75,7 +75,7 @@ function formatData(data) {
                     }
                     for (let entry in data[key][i].uploaders) {
                         // This check should probably be done using a modulation field, but this still works I guess..
-                        if (data[key][i].software_name.includes("APRS")) {
+                        if ("software_name" in data[key][i] && data[key][i].software_name.includes("APRS")) {
                             aprsflag = true;
                             var stations = data[key][i].uploaders[entry].uploader_callsign.split(",");
                             for (let uploader in stations) {
