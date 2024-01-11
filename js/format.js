@@ -165,7 +165,7 @@ function formatData(data) {
 
                     // For WSPR payloads, calculate solar elevation.
                     if(wspr_payload){
-                        dataTempEntry.data['solar_elevation'] = (SunCalc.getPosition(stringToDateUTC(dataTempEntry.gps_time), dataTempEntry.gps_lat, dataTempEntry.gps_lon).altitude/rad).toFixed(1);
+                        dataTempEntry.data['solar_elevation'] = (SunCalc.getPosition(stringToDateUTC(dataTempEntry.gps_time), dataTempEntry.gps_lat, dataTempEntry.gps_lon, dataTempEntry.gps_alt).altitude/rad).toFixed(1);
                     }
 
 
