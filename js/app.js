@@ -732,7 +732,7 @@ $(window).ready(function() {
         '#sw_show_testing',
         "#sw_nowelcome",
         "#sw_interpolate",
-        "#sw_float_constrained"
+        "#sw_float_wide"
     ];
 
     // applies functionality when switches are toggled

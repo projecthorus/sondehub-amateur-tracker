@@ -1682,13 +1682,13 @@ function generateHysplit(callsign) {
     hideHysplit(callsign)
     var vehicle = vehicles[callsign];
     vehicle.prediction_hysplit_visible = true;
-    // If requested, constrain the float prediction altitudes to a narrower range.
-    if(offline.get("opt_float_constrained")){
-        alt_max = 100;
-        alt_step = 20;
-    } else {
+    // If requested, widen the float prediction range.
+    if(offline.get("opt_float_wide")){
         alt_max = 1000;
         alt_step = 100;
+    } else {
+        alt_max = 100;
+        alt_step = 20;
     }
     alt_min = alt_max*-1;
     for (var alt = alt_min; alt <= alt_max; alt+=alt_step) {
