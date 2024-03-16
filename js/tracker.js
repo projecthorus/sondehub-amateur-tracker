@@ -1778,6 +1778,10 @@ function createHysplit(callsign, adjustment, alt_color) {
                         vehicle.markers_hysplit[adjustment] = {};
                     }
 
+                    // Calculate the solar elevation at this date and time.
+
+                    var solar_elev_now = (SunCalc.getPosition(current_time, lat, lon, data.prediction[1].trajectory[point].altitude).altitude/rad).toFixed(1);
+
                     vehicle.markers_hysplit[adjustment][current_hours] = new L.CircleMarker(position, 
                         {
                             radius: 6,
@@ -1785,7 +1789,7 @@ function createHysplit(callsign, adjustment, alt_color) {
                             color: alt_color,
                         }
                     ).bindPopup(
-                        "<B>Prediction Start Time:</B> " + startDateStr + "<BR><B>Prediction Start Altitude: </B>" + altitude + "<BR><B>Prediction Current time:</B> " + data.prediction[1].trajectory[point].datetime + " (+" + current_hours + " hrs)"
+                        "<B>Prediction Start Time:</B> " + startDateStr + "<BR><B>Prediction Start Altitude: </B>" + altitude + "<BR><B>Prediction Current time:</B> " + data.prediction[1].trajectory[point].datetime + " (+" + current_hours + " hrs)<BR><B>Solar Elevation:</B> " + solar_elev_now + "˚"
                     );
 
                     if(vehicle.prediction_hysplit_visible){
