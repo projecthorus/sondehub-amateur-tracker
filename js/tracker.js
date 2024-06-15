@@ -3004,7 +3004,7 @@ function addPosition(position) {
         };
 
         // if car doesn't report heading, we calculate it from the last position
-        if(vehicle.num_positions > 1 && vehicle.vehicle_type == 'car' && 'gps_heading' in position && position.gps_heading === "") {
+        if(vehicle.num_positions > 1 && vehicle.vehicle_type == 'car') {
 
             // Source
             var startLat = toRadians(vehicle.curr_position.gps_lat);
