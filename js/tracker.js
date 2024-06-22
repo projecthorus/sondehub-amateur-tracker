@@ -3888,6 +3888,7 @@ function updateChase(r) {
                         dataTempEntry.gps_alt = last.uploader_position[2];
                         dataTempEntry.gps_lat = last.uploader_position[0];
                         dataTempEntry.gps_lon = last.uploader_position[1];
+                        dataTempEntry.gps_heading = 90;
                         var date = new Date(last.ts)
                         var userTimezoneOffset = date.getTimezoneOffset() * 60000;
                         var time = new Date(date.getTime() - userTimezoneOffset).toISOString();
