@@ -63,6 +63,7 @@ var manual_pan = false;
 
 var car_index = 0;
 var car_colors = ["blue", "red", "green", "yellow", "teal", "purple"];
+var balloon_index = 0;
 var balloon_colors = ["red", "blue", "lime", "magenta", "#ffb300", "#00ffff"];
 
 var nyan_color_index = 0;
@@ -2534,11 +2535,7 @@ function addPosition(position) {
             marker.addTo(map);
         } else {
             vehicle_type = "balloon";
-            let colorHash = 0;
-            for (let i = 0; i < vcallsign.length; i++){
-                colorHash += vcallsign.charCodeAt(i);
-            }
-            color_index = colorHash % balloon_colors.length;
+            color_index = balloon_index++ % balloon_colors.length;
 
             image_src = recolorSVG(host_url + markers_url + "balloon.svg", balloon_colors[color_index]);
             image_src_size = [46,84];
@@ -2585,7 +2582,7 @@ function addPosition(position) {
             };
 
             marker.shadow = marker_shadow;
-            marker.balloonColor = (vcallsign == "PIE") ? "rpi" : balloon_colors[color_index];
+            marker.balloonColor = balloon_colors[color_index];
             marker.mode = 'balloon';
             marker.setMode = function(mode) {
                 if(this.mode == mode) return;
