@@ -63,9 +63,7 @@ var manual_pan = false;
 
 var car_index = 0;
 var car_colors = ["blue", "red", "green", "yellow", "teal", "purple"];
-var balloon_index = 0;
-var balloon_colors_name = ["red", "blue", "green", "purple", "orange", "cyan"];
-var balloon_colors = ["#f00", "blue", "green", "#c700e6", "#ff8a0f", "#0fffca"];
+var balloon_colors = ["red", "blue", "lime", "magenta", "#ffb300", "#00ffff"];
 
 var nyan_color_index = 0;
 var nyan_colors = ['nyan', 'nyan-coin', 'nyan-mon', 'nyan-pirate', 'nyan-cool', 'nyan-tothemax', 'nyan-pumpkin', 'nyan-afro', 'nyan-coin', 'nyan-mummy'];
@@ -569,7 +567,6 @@ function clean_refresh(text, force, history_step) {
     }
 
     car_index = 0;
-    balloon_index = 0;
     nyan_color_index = 0;
     stopFollow(force);
 
@@ -1235,7 +1232,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
   vehicle.marker.setLatLng(latlng);
 
   if(!!vehicle.marker.setCourse) {
-    if (vehicle.curr_position.gps_heading) {
+    if (vehicle.curr_position.gps_heading && vehicle.marker.rotated) {
         vehicle.marker.setCourse((vehicle.curr_position.gps_heading !== "") ? parseInt(vehicle.curr_position.gps_heading) : 90);
     }
   } 
@@ -1875,7 +1872,19 @@ function removePrediction(vcallsign) {
   }
 }
 
+// Takes in an SVG for a balloon, parachute, target, car, etc and sets a dynamic-color
+// variable which that SVG can use to recolor any relevant elements.
+// See balloon.svg, target.svg, etc for examples
+function recolorSVG(svg_path, color) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', svg_path, false);
+    xhr.send();
 
+    const parser = new DOMParser();
+    const svgDocument = parser.parseFromString(xhr.responseText, 'image/svg+xml');
+    svgDocument.documentElement.style.setProperty("--dynamic-color", color);
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgDocument.documentElement.outerHTML);
+  }
 
 function redrawPrediction(vcallsign) {
     var vehicle = vehicles[vcallsign];
@@ -1936,7 +1945,7 @@ function redrawPrediction(vcallsign) {
         if(vehicle.prediction_target) {
             vehicle.prediction_target.setLatLng(latlng);
         } else {
-            image_src = host_url + markers_url + "target-" + balloon_colors_name[vehicle.color_index] + ".png";
+            image_src = recolorSVG(host_url + markers_url + "target.svg", balloon_colors[vehicle.color_index]);
             predictionIcon = new L.icon({
                 iconUrl: image_src,
                 iconSize: [20,20],
@@ -2425,10 +2434,10 @@ var marker_rotate_setup = function(marker, image_src) {
     else {
         marker.iconImg = new Image();
         icon_cache[image_src] = marker.iconImg;
-        marker.iconImg.onload = function() {
+        marker.iconImg.addEventListener("load", function() {
             if(!marker.rotated) marker.setCourse(90);
             marker.setLatLng(marker.getLatLng());
-        };
+        })
         marker.iconImg.src = image_src;
     }
 };
@@ -2462,7 +2471,7 @@ function addPosition(position) {
         if(vcallsign.search(/(chase)/i) != -1) {
             vehicle_type = "car";
             color_index = car_index++ % car_colors.length;
-            image_src = host_url + markers_url + "car-" + car_colors[color_index] + ".png";
+            image_src = recolorSVG(host_url + markers_url + "car.svg", car_colors[color_index]);
             image_src_size = [55,25];
             image_src_offset = [0,-25];
 
@@ -2525,10 +2534,13 @@ function addPosition(position) {
             marker.addTo(map);
         } else {
             vehicle_type = "balloon";
-            color_index = balloon_index++ % balloon_colors.length;
+            let colorHash = 0;
+            for (let i = 0; i < vcallsign.length; i++){
+                colorHash += vcallsign.charCodeAt(i);
+            }
+            color_index = colorHash % balloon_colors.length;
 
-            image_src = host_url + markers_url + "balloon-" +
-                        ((vcallsign == "PIE") ? "rpi" : balloon_colors_name[color_index]) + ".png";
+            image_src = recolorSVG(host_url + markers_url + "balloon.svg", balloon_colors[color_index]);
             image_src_size = [46,84];
             image_src_offset = [-35,-46];
 
@@ -2573,7 +2585,7 @@ function addPosition(position) {
             };
 
             marker.shadow = marker_shadow;
-            marker.balloonColor = (vcallsign == "PIE") ? "rpi" : balloon_colors_name[color_index];
+            marker.balloonColor = (vcallsign == "PIE") ? "rpi" : balloon_colors[color_index];
             marker.mode = 'balloon';
             marker.setMode = function(mode) {
                 if(this.mode == mode) return;
@@ -2586,9 +2598,9 @@ function addPosition(position) {
                     map.removeLayer(vehicle.subhorizon_circle);
                     map.removeLayer(vehicle.horizon_circle_title);
                     map.removeLayer(vehicle.subhorizon_circle_title);
-
+                    img_src = recolorSVG(host_url + markers_url + "payload.svg", this.balloonColor);
                     img = new L.icon ({
-                        iconUrl: host_url + markers_url + "payload-" + this.balloonColor + ".png",
+                        iconUrl: img_src,
                         iconSize: [17,18],
                         iconAnchor: [8,14],
                         tooltipAnchor: [0,-20],
@@ -2604,15 +2616,17 @@ function addPosition(position) {
                     }
 
                     if(mode == "parachute") {
+                        img_src = recolorSVG(host_url + markers_url + "parachute.svg", this.balloonColor);
                         img = new L.icon ({
-                            iconUrl: host_url + markers_url + "parachute-" + this.balloonColor + ".png",
+                            iconUrl: img_src,
                             iconSize: [46,84],
                             tooltipAnchor: [0,-98],
                             iconAnchor: [23,90],
                         });
                     } else {
+                        img_src = recolorSVG(host_url + markers_url + "balloon.svg", this.balloonColor);
                         img = new L.icon ({
-                            iconUrl: host_url + markers_url + "balloon-" + this.balloonColor + ".png",
+                            iconUrl: img_src,
                             iconSize: [46,84],
                             tooltipAnchor: [0,-98],
                             iconAnchor: [23,90],
