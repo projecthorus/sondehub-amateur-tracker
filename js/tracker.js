@@ -1416,7 +1416,7 @@ function updateVehicleInfo(vcallsign, newPosition) {
 
   for(i in vehicle.receiver_info){
     if (vehicle.receiver_info[i]["time"] < current_time - 15000) {
-        vehicle.receiver_info.splice(i,1);
+        delete vehicle.receiver_info[i];
     }
   }
 
