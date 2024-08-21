@@ -40,7 +40,7 @@
     <ellipse cx="50" cy="154" rx="18" ry="7" fill="var(--dynamic-color)" 
       stroke="black" stroke-width="1"/>
   <!-- String down to payload -->
-  <line x1="50" y1="90" x2="50" y2="154" 
+  <line x1="50" y1="110" x2="50" y2="154" 
       stroke="black" stroke-width="1.5" filter="url(#linesWhiteShadow)"/>
   <!-- The balloon itself -->
   <path
