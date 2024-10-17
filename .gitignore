@@ -1,8 +1,6 @@
 *.swp
 *.pyc
 *.log
-js/mobile.js
-js/init_plot.js
-css/mobile.css
-cache.manifest
+/index.html
+/service-worker.js
 tiles/

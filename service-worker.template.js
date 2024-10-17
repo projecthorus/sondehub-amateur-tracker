@@ -1,18 +1,34 @@
 self.addEventListener('install', function(event) {
     event.waitUntil(
-        caches.open(cacheName).then(function(cache) {
+        caches.open("{VER}").then(function(cache) {
             return cache.addAll(
                 [
-                    '/css/mobile.css',
+                    '/css/base.css',
+                    '/css/skeleton.css',
+                    '/css/layout.css',
+                    '/css/habitat-font.css',
+                    '/css/main.css',
                     '/css/leaflet.css',
                     '/css/leaflet.fullscreen.css',
                     '/js/leaflet.js',
                     '/js/Leaflet.fullscreen.min.js',
                     '/js/L.Terminator.js',
-                    '/js/mobile.js',
+                    '/js/L.TileLayer.NoGap.js',
+                    '/js/leaflet.antimeridian-src.js',
+                    '/js/paho-mqtt.js',
+                    '/js/jquery-1.12.4-min.js',
+                    '/js/iscroll.js',
+                    '/js/chasecar.lib.js',
+                    '/js/sondehub.js',
+                    '/js/app.js',
+                    '/js/colour-map.js',
+                    '/js/suncalc.js',
+                    '/js/flight_doc.js',
+                    '/js/format.js',
                     '/js/rbush.js',
                     '/js/pwa.js',
-                    '/js/init_plot.js',
+                    '/js/_jquery.flot.js',
+                    '/js/plot_config.js',
                     '/img/markers/balloon.svg',
                     '/img/markers/car.svg',
                     '/img/markers/parachute.svg',

@@ -197,7 +197,9 @@ function trackerInit() {
     if(is_mobile || wvar.enabled) $(".nav .wvar").hide();
 
     if(!is_mobile) {
-        $.getScript("js/init_plot.js", function() { checkSize(); if(!map) load(); });
+        $.getScript("js/_jquery.flot.js", function() {
+            $.getScript("js/plot_config.js", function() { checkSize(); if(!map) load(); });
+        });
         if(wvar.graph) $('#telemetry_graph').attr('style','');
 
         return;
@@ -205,7 +207,7 @@ function trackerInit() {
     if(!map) load();
 }
 
-// if for some reason, applicationCache is not working, load the app after a 3s timeout
+// load the app after a 3s timeout
 var initTimer = setTimeout(trackerInit, 3000);
 
 var listScroll;
@@ -362,7 +364,7 @@ var positionUpdateHandle = function(position) {
         }
         else { return; }
 
-        // add/update marker on the map (tracker.js)
+        // add/update marker on the map (sondehub.js)
         updateCurrentPosition(lat, lon);
 
         // round the coordinates
@@ -481,10 +483,6 @@ $(window).ready(function() {
     setInterval(function() {
         updateTime(new Date());
     }, 1000);
-
-    // Update Tracker version info
-    $('#build_version').text("{VER}");
-    $('#build_date').text("{BUILD_DATE}");
 
     // resize elements if needed
     checkSize();
