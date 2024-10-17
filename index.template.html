@@ -19,10 +19,35 @@
         <link rel="icon" type="image/x-icon" href="favicon.ico" />
         <link rel="manifest" href="manifest.json">
         
-        <link rel="stylesheet" href="css/mobile.css"/>
+        <link rel="stylesheet" href="css/base.css"/>
+        <link rel="stylesheet" href="css/skeleton.css"/>
+        <link rel="stylesheet" href="css/layout.css"/>
+        <link rel="stylesheet" href="css/habitat-font.css"/>
+        <link rel="stylesheet" href="css/main.css"/>
+        <link rel="stylesheet" href="css/leaflet.css"/>
+        <link rel="stylesheet" href="css/leaflet.fullscreen.css"/>
 
+        <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1130.0.min.js"></script>
+        <script type="text/javascript" language="javascript" src="js/leaflet.js?v={VER}"></script>
+        <script type="text/javascript" language="javascript" src="js/Leaflet.fullscreen.min.js?v={VER}"></script>
+        <script type="text/javascript" language="javascript" src="js/L.Terminator.js?v={VER}"></script>
+        <script type="text/javascript" language="javascript" src="js/L.TileLayer.NoGap.js?v={VER}"></script>
+        <script type="text/javascript" language="javascript" src="js/leaflet.antimeridian-src.js?v={VER}"></script>
+        <script type="text/javascript" language="javascript" src="js/paho-mqtt.js?v={VER}"></script>
+
+        <script type="text/javascript" language="javascript" src="js/jquery-1.12.4-min.js"></script>
+        <script type="text/javascript" language="javascript" src="js/iscroll.js?v={VER}"></script>
+        <script type="text/javascript" language="javascript" src="js/chasecar.lib.js?v={VER}"></script>
+        <script type="text/javascript" language="javascript" src="js/sondehub.js?v={VER}"></script>
+        <script type="text/javascript" language="javascript" src="js/colour-map.js?v={VER}"></script>
+        <script type="text/javascript" language="javascript" src="js/suncalc.js?v={VER}"></script>
+        <script type="text/javascript" language="javascript" src="js/format.js?v={VER}"></script>
+    
+        <script type="text/javascript" language="javascript" src="js/rbush.js?v={VER}"></script>
+        <script type="text/javascript" language="javascript" src="js/pwa.js?v={VER}"></script>
+    
     </head>
-    <body>
+    <body data-version="{VER}">
 
     <div id="loading">
         <div>
@@ -131,9 +156,10 @@
                 <a href="https://github.com/projecthorus/sondehub-amateur-tracker" target="_blank" rel="noopener">github/sondehub-amateur-tracker</a>.
                 Bug reports, suggestions and pull requests are welcome. A huge thanks to RGP for developing the mobile tracker that this site is based on.
                 <br/><br/>
-                Tracker Revision: <span class="r" id="build_version"></span>
+                Tracker Revision: <span class="r">{VER}</span>
                 <br/>
-                Build Date: <span class="r" id="build_date"></span>
+                Build Date: <span class="r">{BUILD_DATE}</span>
+
             </p>
         </div>
     </div>
@@ -380,26 +406,10 @@
         </div>
     </div>
     <!-- Was 3.31-->
+
+    <script type="text/javascript" language="javascript" src="js/app.js?v={VER}"></script>
+    <script type="text/javascript" language="javascript" src="js/flight_doc.js?v={VER}"></script>
+
     <script type="text/javascript" language="javascript" src="https://xc5dqkj2cgb1.statuspage.io/embed/script.js" async defer></script>
-    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1130.0.min.js"></script>
-    <script type="text/javascript" language="javascript" src="js/leaflet.js"></script>
-    <script type="text/javascript" language="javascript" src="js/Leaflet.fullscreen.min.js"></script>
-    <script type="text/javascript" language="javascript" src="js/L.Terminator.js"></script>
-    <script type="text/javascript" language="javascript" src="js/L.TileLayer.NoGap.js"></script>
-    <script type="text/javascript" language="javascript" src="js/leaflet.antimeridian-src.js"></script>
-    <script type="text/javascript" language="javascript" src="js/paho-mqtt.js"></script>
-    <!--
-    <script type="text/javascript" language="javascript" src="js/iscroll.js"></script>
-    <script type="text/javascript" language="javascript" src="js/jquery-1.12.4-min.js"></script>
-    <script type="text/javascript" language="javascript" src="js/jquery-ui.min.js"></script>
-    <script type="text/javascript" language="javascript" src="js/chasecar.lib.js"></script>
-    <script type="text/javascript" language="javascript" src="js/tracker.js"></script>
-    <script type="text/javascript" language="javascript" src="js/tracker.js"></script>
-    <script type="text/javascript" language="javascript" src="js/color-map.js"></script>
-    -->
-    <script type="text/javascript" language="javascript" src="js/mobile.js"></script>
-    <script type="text/javascript" language="javascript" src="js/rbush.js"></script>
-    <script type="text/javascript" language="javascript" src="js/pwa.js"></script>
-    
     </body>
 </html>

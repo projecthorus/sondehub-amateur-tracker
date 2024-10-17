@@ -31,10 +31,11 @@ Pull requests are welcome.
 
 ## Installation
 
-Requirements: Java
-
     $ git clone https://github.com/projecthorus/sondehub-amateur-tracker.git
     $ ./build.sh
+    $ python serve.py
+
+Visit [http://localhost:8000](http://localhost:8000) to view the local version of the tracker!
 
 ## Original design
 
