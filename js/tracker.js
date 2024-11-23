@@ -9,6 +9,8 @@ var grafana_url = "https://grafana.v2.sondehub.org/d/HJgOZLq7k/basic?";
 var grafana_aprs_url = "https://grafana.v2.sondehub.org/d/Lwvk1Hy4k/aprs-telemetry?";
 // Grafana dashboard for WSPR flight
 var grafana_wspr_url = "https://grafana.v2.sondehub.org/d/e4571f1f-b51e-4e02-b97a-dcd198b49560/wspr-balloon-telemetry?";
+// Grafana dashboard for Wenet payloads
+var grafana_wenet_url = "https://grafana.v2.sondehub.org/d/ddzty5w2yqt4wc/wenet?"
 
 var livedata = "wss://ws-reader.v2.sondehub.org/";
 var clientID = "SondeHub-Tracker-" + Math.floor(Math.random() * 10000000000);
@@ -1532,6 +1534,10 @@ function updateVehicleInfo(vcallsign, newPosition) {
 
         if(vehicle.curr_position.data.modulation.includes('WSPR')){
             grafana_base_url = grafana_wspr_url;
+        }
+
+        if(vehicle.curr_position.data.modulation.includes('Wenet')){
+            grafana_base_url = grafana_wenet_url;
         }
     }
     if(vehicle.curr_position.data.hasOwnProperty('comment')){
