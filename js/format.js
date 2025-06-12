@@ -63,13 +63,13 @@ function formatData(data) {
                         data[key][i].uploaders = [];
                         data[key][i].uploaders[0] = {}
                         data[key][i].uploaders[0].uploader_callsign = data[key][i].uploader_callsign;
-                        if (data[key][i].snr) {
+                        if (data[key][i].snr && typeof data[key][i].snr === "number") {
                             data[key][i].uploaders[0].snr = + data[key][i].snr.toFixed(1);
                         }
-                        if (data[key][i].rssi) {
+                        if (data[key][i].rssi && typeof data[key][i].rssi === "number") {
                             data[key][i].uploaders[0].rssi = + data[key][i].rssi.toFixed(1);
                         }
-                        if (data[key][i].frequency) {
+                        if (data[key][i].frequency && typeof data[key][i].frequency === "number") {
                             data[key][i].uploaders[0].frequency = + data[key][i].frequency.toFixed(4);
                         } 
                     }
@@ -85,13 +85,13 @@ function formatData(data) {
                             uploader_callsign = data[key][i].uploaders[entry].uploader_callsign
                             dataTempEntry.callsign[uploader_callsign] = {};
     
-                            if (data[key][i].uploaders[entry].snr) {
+                            if (data[key][i].uploaders[entry].snr && typeof data[key][i].uploaders[entry].snr === "number") {
                                 dataTempEntry.callsign[uploader_callsign].snr = + data[key][i].uploaders[entry].snr.toFixed(1);
                             }
-                            if (data[key][i].uploaders[entry].rssi) {
+                            if (data[key][i].uploaders[entry].rssi && typeof data[key][i].uploaders[entry].rssi === "number") {
                                 dataTempEntry.callsign[uploader_callsign].rssi = + data[key][i].uploaders[entry].rssi.toFixed(1);
                             }
-                            if (data[key][i].uploaders[entry].frequency) {
+                            if (data[key][i].uploaders[entry].frequency && typeof data[key][i].uploaders[entry].frequency === "number") {
                                 dataTempEntry.callsign[uploader_callsign].frequency = + data[key][i].uploaders[entry].frequency.toFixed(4);
                             }  
     

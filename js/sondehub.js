@@ -12,7 +12,6 @@ var grafana_wspr_url = "https://grafana.v2.sondehub.org/d/e4571f1f-b51e-4e02-b97
 // Grafana dashboard for Wenet payloads
 var grafana_wenet_url = "https://grafana.v2.sondehub.org/d/ddzty5w2yqt4wc/wenet?"
 
-
 var livedata = "wss://ws-reader.v2.sondehub.org/";
 var clientID = "SondeHub-Tracker-" + Math.floor(Math.random() * 10000000000);
 var client = new Paho.Client(livedata, clientID);
