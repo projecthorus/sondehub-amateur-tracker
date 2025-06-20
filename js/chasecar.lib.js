@@ -23,7 +23,7 @@ ChaseCar.updatePosition = function(callsign, position) {
 
     var _doc = {
         "software_name": "SondeHub-Amateur",
-        "software_version": "{VER}",
+        "software_version": document.body.dataset.version,
         "uploader_callsign": callsign,
         "uploader_position": [position.coords.latitude, position.coords.longitude, _position_alt],
         "uploader_antenna": "Mobile Station",
