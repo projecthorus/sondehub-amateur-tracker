@@ -672,11 +672,13 @@ function load() {
     
             div.innerHTML = `<select name="modulationfilter" id="modulationfilter" style="width:auto !important;height:30px;" onchange="sidebar_update(this.value);lhash_update();">
                 <option value="all">All</option>
-                <option value="Horus Binary">Horus Binary</option>
                 <option value="APRS">APRS</option>
-                <option value="WSPR">WSPR</option>
+                <option value="Horus Binary">Horus Binary</option>
                 <option value="LoRa">LoRa</option>
                 <option value="RTTY">RTTY</option>
+                <option value="TTN">TTN</option>
+                <option value="Wenet">Wenet</option>
+                <option value="WSPR">WSPR</option>
             </select>`;
             div.innerHTML.onload = setTimeValue();
 
