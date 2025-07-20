@@ -918,18 +918,38 @@ function sidebar_update() {
         for (let serial in vehicles) {
             if (map.getBounds().contains(vehicles[serial].marker.getLatLng()) && !isVehicleFiltered(serial)) {
                 $("#main .vehicle"+vehicles[serial].uuid).show();
+                vehicles[serial].marker.addTo(map);
+                if (vehicles[serial].marker_shadow) {
+                    vehicles[serial].marker_shadow.addTo(map);
+                }
+                
+                set_polyline_visibility(serial,true)
+                
             } else {
                 if (!($("#main .vehicle"+vehicles[serial].uuid).hasClass("follow"))) {
                     $("#main .vehicle"+vehicles[serial].uuid).hide();
-                }
+                    map.removeLayer(vehicles[serial].marker);
+                    map.removeLayer(vehicles[serial].marker_shadow);
+                    set_polyline_visibility(serial,false)
+                                }
             }
         }
     } else {
         for (let serial in vehicles) {
             if (!isVehicleFiltered(serial)){
                 $("#main .vehicle"+vehicles[serial].uuid).show();
+                vehicles[serial].marker.addTo(map);
+                if (vehicles[serial].marker_shadow){
+                    vehicles[serial].marker_shadow.addTo(map);
+                }
+                
+                set_polyline_visibility(serial,true)
+                
             } else {
                 $("#main .vehicle"+vehicles[serial].uuid).hide();
+                map.removeLayer(vehicles[serial].marker);
+                map.removeLayer(vehicles[serial].marker_shadow);
+                set_polyline_visibility(serial,false)
             }
         }
     }
