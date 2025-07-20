@@ -903,7 +903,7 @@ function isVehicleFiltered(serial){
                 vehicles[serial]['curr_position'] && 
                 vehicles[serial]['curr_position']['data'] &&
                 vehicles[serial]['curr_position']['data']['modulation'] &&
-                vehicles[serial]['curr_position']['data']['modulation'].startsWith(document.getElementById("modulationfilter").value)) {
+                vehicles[serial]['curr_position']['data']['modulation'].includes(document.getElementById("modulationfilter").value)) {
                 return false
             } else {
                 return true
