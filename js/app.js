@@ -40,6 +40,10 @@ function lhash_update(history_step) {
         hash += "&nyan=1";
     }
 
+    if (document.getElementById("modulationfilter").value != "all"){
+        hash += "&mo=" + document.getElementById("modulationfilter").value;
+    }
+
     hash = encodeURI(hash);
     // set state
     if(history_supported) {
@@ -131,6 +135,10 @@ function load_hash(no_refresh) {
             case "site":
                 focusID = v;
                 gotoSite(v);
+                break;
+            case "mo":
+                document.getElementById("modulationfilter").value = v;
+                sidebar_update();
                 break;
         }
     });

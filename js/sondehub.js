@@ -666,6 +666,32 @@ function load() {
     
     L.control.periodcontrol({ position: 'topleft' }).addTo(map);
 
+    L.Control.ModulationFilter = L.Control.extend({
+         onAdd: function(map) {
+            var div = L.DomUtil.create('div');
+    
+            div.innerHTML = `<select name="modulationfilter" id="modulationfilter" style="width:auto !important;height:30px;" onchange="sidebar_update(this.value);lhash_update();">
+                <option value="all">All</option>
+                <option value="Horus Binary">Horus Binary</option>
+                <option value="APRS">APRS</option>
+                <option value="WSPR">WSPR</option>
+                <option value="LoRa">LoRa</option>
+                <option value="RTTY">RTTY</option>
+            </select>`;
+            div.innerHTML.onload = setTimeValue();
+
+            return div;
+        },
+        onRemove: function(map) {
+            // Nothing to do here
+        }
+    })
+
+    L.control.modulationcontrol = function(opts) {
+        return new L.Control.ModulationFilter(opts);
+    }
+    L.control.modulationcontrol({ position: 'topleft' }).addTo(map);
+
     // update current position if we geolocation is available
     if(currentPosition) updateCurrentPosition(currentPosition.lat, currentPosition.lon);
 
@@ -866,10 +892,29 @@ function panTo(vcallsign) {
     }
 }
 
+function isVehicleFiltered(serial){
+    if ( document.getElementById("modulationfilter") && document.getElementById("modulationfilter").value && document.getElementById("modulationfilter").value != "all"){
+        if (vehicles[serial]['vehicle_type'] != 'balloon'){
+            return false
+        } else {
+            if (vehicles[serial] && vehicles[serial]['curr_position'] &&
+                vehicles[serial]['curr_position'] && 
+                vehicles[serial]['curr_position']['data'] &&
+                vehicles[serial]['curr_position']['data']['modulation'] &&
+                vehicles[serial]['curr_position']['data']['modulation'].startsWith(document.getElementById("modulationfilter").value)) {
+                return false
+            } else {
+                return true
+            }
+        }
+    }
+    return false;
+}
+
 function sidebar_update() {
     if (offline.get('opt_selective_sidebar')) {
         for (let serial in vehicles) {
-            if (map.getBounds().contains(vehicles[serial].marker.getLatLng())) {
+            if (map.getBounds().contains(vehicles[serial].marker.getLatLng()) && !isVehicleFiltered(serial)) {
                 $("#main .vehicle"+vehicles[serial].uuid).show();
             } else {
                 if (!($("#main .vehicle"+vehicles[serial].uuid).hasClass("follow"))) {
@@ -879,7 +924,11 @@ function sidebar_update() {
         }
     } else {
         for (let serial in vehicles) {
-            $("#main .vehicle"+vehicles[serial].uuid).show();
+            if (!isVehicleFiltered(serial)){
+                $("#main .vehicle"+vehicles[serial].uuid).show();
+            } else {
+                $("#main .vehicle"+vehicles[serial].uuid).hide();
+            }
         }
     }
 }
@@ -1460,7 +1509,6 @@ function updateVehicleInfo(vcallsign, newPosition) {
     }
 
     var receiver_list_sorted = Object.keys(vehicle.receiver_info).sort();
-    console.log(receiver_list_sorted);
 
     for(var receiver_idx in receiver_list_sorted){
         var receiver = receiver_list_sorted[receiver_idx];
@@ -1630,6 +1678,8 @@ function updateVehicleInfo(vcallsign, newPosition) {
   // mark vehicles as redrawn
   vehicle.updated = false;
 
+  sidebar_update()
+  
   return true;
 }
 
