@@ -64,9 +64,9 @@ var manual_pan = false;
 // due to complaints it was not visible enough. - 2023-06-03
 
 var car_index = 0;
-var car_colors = ["blue", "red", "green", "yellow", "teal", "purple"];
+var car_colors = ["#a6cee3", "#1f78b4", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6"];
 var balloon_index = 0;
-var balloon_colors = ["red", "blue", "lime", "magenta", "#ffb300", "#00ffff"];
+var balloon_colors = ["#d95f02", "#7570b3", "#e7298a", "#e6ab02", "#a6761d", "#666666", "blue", "magenta", "#ffb300", "rebeccapurple"];
 
 var nyan_color_index = 0;
 var nyan_colors = ['nyan', 'nyan-coin', 'nyan-mon', 'nyan-pirate', 'nyan-cool', 'nyan-tothemax', 'nyan-pumpkin', 'nyan-afro', 'nyan-coin', 'nyan-mummy'];
@@ -1896,9 +1896,11 @@ function set_polyline_visibility(vcallsign, val) {
 
     if(vehicle.prediction_polyline) {
         if (val) {
-            map.addLayer(vehicle.prediction_polyline);
+            map.addLayer(vehicle.prediction_polyline[0]);
+            map.addLayer(vehicle.prediction_polyline[1]);
         } else {
-            map.removeLayer(vehicle.prediction_polyline);
+            map.removeLayer(vehicle.prediction_polyline[0]);
+            map.removeLayer(vehicle.prediction_polyline[1]);
         }
     }
     if(vehicle.prediction_launch_polyline) {
@@ -1928,7 +1930,8 @@ function set_polyline_visibility(vcallsign, val) {
 
 function removePrediction(vcallsign) {
   if(vehicles[vcallsign].prediction_polyline) {
-    map.removeLayer(vehicles[vcallsign].prediction_polyline);
+    map.removeLayer(vehicles[vcallsign].prediction_polyline[0]);
+    map.removeLayer(vehicles[vcallsign].prediction_polyline[1]);
     vehicles[vcallsign].prediction_polyline = null;
   }
   if(vehicles[vcallsign].prediction_target) {
@@ -1994,19 +1997,33 @@ function redrawPrediction(vcallsign) {
     vehicle.prediction_path = line;
 
     if(vehicle.prediction_polyline !== null) {
-        vehicle.prediction_polyline.setLatLngs(line);
+        vehicle.prediction_polyline[0].setLatLngs(line);
+        vehicle.prediction_polyline[1].setLatLngs(line);
     } else {
-        vehicle.prediction_polyline = new L.Wrapped.Polyline(line, {
+        vehicle.prediction_polyline = [new L.Wrapped.Polyline(line, {
             color: balloon_colors[vehicle.color_index],
-            opacity: 0.5,
+            opacity: 0.8,
             weight: 3,
-        }).addTo(map);
-        vehicle.prediction_polyline.on('click', function (e) {
+        }),
+        vehicle.prediction_polyline = new L.Wrapped.Polyline(line, {
+            opacity: 0.1,
+            weight: 6,
+            color: "#000"
+        })]
+        vehicle.prediction_polyline[0].on('click', function (e) {
             mapInfoBox_handle_prediction_path(e);
         });
+        vehicle.prediction_polyline[1].on('click', function (e) {
+            mapInfoBox_handle_prediction_path(e);
+        });
+
+        vehicle.prediction_polyline[0].addTo(map);
+        vehicle.prediction_polyline[1].addTo(map);
+        
     }
 
-    vehicle.prediction_polyline.path_length = path_length;
+    vehicle.prediction_polyline[0].path_length = path_length;
+    vehicle.prediction_polyline[1].path_length = path_length;
 
     var image_src;
     if(vcallsign != "wb8elk2") { // WhiteStar - Not sure the reasons behind a check for this? Seems odd. May be from when WB8ELK was first doing floater flights?
@@ -2789,7 +2806,12 @@ function addPosition(position) {
                     color: balloon_colors[color_index],
                     opacity: 1,
                     weight: 3,
-                }).addTo(map)
+                }).addTo(map),
+                new L.Polyline(point, {
+                    color: "#fff",
+                    opacity: 0.6,
+                    weight: 6,
+                })
             ];
         }
 
@@ -2901,8 +2923,11 @@ function addPosition(position) {
         vehicle_info.kill = function() {
             $(".vehicle"+vehicle_info.uuid).remove();
             potentialobjects = [marker, marker_shadow, landing_marker, horizon_circle, horizon_circle_title, subhorizon_circle, subhorizon_circle_title, polyline];
-            if (map.hasLayer(vehicle_info["prediction_polyline"])) { 
-                map.removeLayer(vehicle_info["prediction_polyline"]);
+            if (vehicle_info["prediction_polyline"] && map.hasLayer(vehicle_info["prediction_polyline"][0])) { 
+                map.removeLayer(vehicle_info["prediction_polyline"][0]);
+            }
+            if (vehicle_info["prediction_polyline"] && map.hasLayer(vehicle_info["prediction_polyline"][1])) { 
+                map.removeLayer(vehicle_info["prediction_polyline"][1]);
             }
             if (map.hasLayer(vehicle_info["prediction_launch_polyline"])) { 
                 map.removeLayer(vehicle_info["prediction_launch_polyline"]);
