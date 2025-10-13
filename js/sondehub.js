@@ -951,7 +951,13 @@ function sidebar_update() {
                 map.removeLayer(vehicles[serial].marker_shadow);
                 set_polyline_visibility(serial,false)
             }
+            
         }
+    }
+    if(offline.get("opt_hide_horizon")) {
+        showHorizonRings();     
+    } else {
+        hideHorizonRings();  
     }
 }
 
@@ -4172,11 +4178,16 @@ function hideHorizonRings(){
 
 function showHorizonRings(){
     for(var vcallsign in vehicles) {
-        if(vehicles[vcallsign].vehicle_type == "balloon"){
+        if(vehicles[vcallsign].vehicle_type == "balloon" && (!isVehicleFiltered(vcallsign))){
             map.addLayer(vehicles[vcallsign].horizon_circle);
             map.addLayer(vehicles[vcallsign].subhorizon_circle);
             map.addLayer(vehicles[vcallsign].horizon_circle_title);
             map.addLayer(vehicles[vcallsign].subhorizon_circle_title);
+        } else if ( vehicles[vcallsign].vehicle_type == "balloon" ) {
+            map.removeLayer(vehicles[vcallsign].horizon_circle);
+            map.removeLayer(vehicles[vcallsign].subhorizon_circle);
+            map.removeLayer(vehicles[vcallsign].horizon_circle_title);
+            map.removeLayer(vehicles[vcallsign].subhorizon_circle_title);
         }
     }
 }
