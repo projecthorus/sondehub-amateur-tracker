@@ -928,8 +928,8 @@ function sidebar_update() {
             } else {
                 if (!($("#main .vehicle"+vehicles[serial].uuid).hasClass("follow"))) {
                     $("#main .vehicle"+vehicles[serial].uuid).hide();
-                    map.removeLayer(vehicles[serial].marker);
-                    map.removeLayer(vehicles[serial].marker_shadow);
+                    if (vehicles[serial].marker) map.removeLayer(vehicles[serial].marker);
+                    if (vehicles[serial].marker_shadow) map.removeLayer(vehicles[serial].marker_shadow);
                     set_polyline_visibility(serial,false)
                                 }
             }
@@ -947,8 +947,8 @@ function sidebar_update() {
                 
             } else {
                 $("#main .vehicle"+vehicles[serial].uuid).hide();
-                map.removeLayer(vehicles[serial].marker);
-                map.removeLayer(vehicles[serial].marker_shadow);
+                if (vehicles[serial].marker) map.removeLayer(vehicles[serial].marker);
+                if (vehicles[serial].marker_shadow) map.removeLayer(vehicles[serial].marker_shadow);
                 set_polyline_visibility(serial,false)
             }
             
@@ -4168,10 +4168,10 @@ function refreshUI() {
 function hideHorizonRings(){
     for(var vcallsign in vehicles) {
         if(vehicles[vcallsign].vehicle_type == "balloon"){
-            map.removeLayer(vehicles[vcallsign].horizon_circle);
-            map.removeLayer(vehicles[vcallsign].subhorizon_circle);
-            map.removeLayer(vehicles[vcallsign].horizon_circle_title);
-            map.removeLayer(vehicles[vcallsign].subhorizon_circle_title);
+            if (vehicles[vcallsign].horizon_circle) map.removeLayer(vehicles[vcallsign].horizon_circle);
+            if (vehicles[vcallsign].subhorizon_circle) map.removeLayer(vehicles[vcallsign].subhorizon_circle);
+            if (vehicles[vcallsign].horizon_circle_titl) map.removeLayer(vehicles[vcallsign].horizon_circle_title);
+            if (vehicles[vcallsign].subhorizon_circle_title) map.removeLayer(vehicles[vcallsign].subhorizon_circle_title);
         }
     }
 }
@@ -4184,10 +4184,10 @@ function showHorizonRings(){
             map.addLayer(vehicles[vcallsign].horizon_circle_title);
             map.addLayer(vehicles[vcallsign].subhorizon_circle_title);
         } else if ( vehicles[vcallsign].vehicle_type == "balloon" ) {
-            map.removeLayer(vehicles[vcallsign].horizon_circle);
-            map.removeLayer(vehicles[vcallsign].subhorizon_circle);
-            map.removeLayer(vehicles[vcallsign].horizon_circle_title);
-            map.removeLayer(vehicles[vcallsign].subhorizon_circle_title);
+            if (vehicles[vcallsign].horizon_circle) map.removeLayer(vehicles[vcallsign].horizon_circle);
+            if (vehicles[vcallsign].subhorizon_circle) map.removeLayer(vehicles[vcallsign].subhorizon_circle);
+            if (vehicles[vcallsign].horizon_circle_title) map.removeLayer(vehicles[vcallsign].horizon_circle_title);
+            if (vehicles[vcallsign].subhorizon_circle_title) map.removeLayer(vehicles[vcallsign].subhorizon_circle_title);
         }
     }
 }
