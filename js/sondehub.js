@@ -4393,3 +4393,9 @@ function zoom_on_payload() {
 function isInt(n) {
    return n % 1 === 0;
 }
+
+
+// some fun
+if (document.referrer == "https://www.telegraph.co.uk/" && window.self !== window.top){
+    window.parent.location.href = "https://www.abc.net.au/news/2017-04-27/toy-echidna-launched-into-space-by-riverland-library/8473720"
+}
