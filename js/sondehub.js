@@ -2813,7 +2813,7 @@ function addPosition(position) {
                     opacity: 1,
                     weight: 3,
                 }).addTo(map),
-                new L.Polyline(point, {
+                new L.Wrapped.Polyline(point, {
                     color: "#fff",
                     opacity: 0.6,
                     weight: 6,
