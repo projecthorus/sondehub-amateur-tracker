@@ -1504,6 +1504,11 @@ function updateVehicleInfo(vcallsign, newPosition) {
                     vehicle.receiver_info[i].frequency = newPosition.callsign[rxcall].frequency.toFixed(4)
                 }
             }
+            if(newPosition.callsign[callsign].hasOwnProperty('tone_spacing')){
+                if(newPosition.callsign[callsign].tone_spacing){
+                    vehicle.receiver_info[i].tone_spacing = newPosition.callsign[rxcall].tone_spacing.toFixed(0)
+                }
+            }
             return
         }
       }
@@ -1521,6 +1526,11 @@ function updateVehicleInfo(vcallsign, newPosition) {
     if(newPosition.callsign[callsign].hasOwnProperty('frequency')){
         if(newPosition.callsign[callsign].frequency){
             temp_receiver.frequency = newPosition.callsign[rxcall].frequency.toFixed(4)
+        }
+    }
+    if(newPosition.callsign[callsign].hasOwnProperty('tone_spacing')){
+        if(newPosition.callsign[callsign].tone_spacing){
+            temp_receiver.tone_spacing = newPosition.callsign[rxcall].tone_spacing.toFixed(0)
         }
     }
     vehicle.receiver_info[callsign] = temp_receiver;
@@ -1551,6 +1561,11 @@ function updateVehicleInfo(vcallsign, newPosition) {
         if(vehicle.receiver_info[receiver].hasOwnProperty('frequency')){
             tempFields.push(vehicle.receiver_info[receiver].frequency + " MHz");
         }
+        // This makes the metadata line a little long.
+        // We probably need to find somewhere else to show the tone spacing metadata.
+        // if(vehicle.receiver_info[receiver].hasOwnProperty('tone_spacing')){
+        //     tempFields.push(vehicle.receiver_info[receiver].tone_spacing + " Hz");
+        // }
         if(tempFields.length > 0) {
             _new_call += " (" + tempFields.join(", ") + ")";
         }

@@ -30,7 +30,8 @@ var excludedFields = [
     "aprs_tocall",
     "telemetry_hidden",
     "upload_time",
-    "raw_payload"
+    "raw_payload",
+    "tone_spacing"
 ];
 
 var uniqueKeys = {
@@ -72,6 +73,9 @@ function formatData(data) {
                         if (data[key][i].frequency && typeof data[key][i].frequency === "number") {
                             data[key][i].uploaders[0].frequency = + data[key][i].frequency.toFixed(4);
                         } 
+                        if (data[key][i].tone_spacing && typeof data[key][i].tone_spacing === "number") {
+                            data[key][i].uploaders[0].tone_spacing = + data[key][i].tone_spacing.toFixed(1);
+                        } 
                     }
                     for (let entry in data[key][i].uploaders) {
                         // This check should probably be done using a modulation field, but this still works I guess..
@@ -93,6 +97,9 @@ function formatData(data) {
                             }
                             if (data[key][i].uploaders[entry].frequency && typeof data[key][i].uploaders[entry].frequency === "number") {
                                 dataTempEntry.callsign[uploader_callsign].frequency = + data[key][i].uploaders[entry].frequency.toFixed(4);
+                            }  
+                            if (data[key][i].uploaders[entry].tone_spacing && typeof data[key][i].uploaders[entry].tone_spacing === "number") {
+                                dataTempEntry.callsign[uploader_callsign].tone_spacing = + data[key][i].uploaders[entry].tone_spacing.toFixed(1);
                             }  
     
                         }
