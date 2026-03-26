@@ -1946,7 +1946,6 @@ function set_polyline_visibility(vcallsign, val) {
         }
     }
 
-    map.removeLayer(mapInfoBox);
 }
 
 function removePrediction(vcallsign) {
