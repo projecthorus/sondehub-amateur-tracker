@@ -4183,7 +4183,7 @@ function hideHorizonRings(){
         if(vehicles[vcallsign].vehicle_type == "balloon"){
             if (vehicles[vcallsign].horizon_circle) map.removeLayer(vehicles[vcallsign].horizon_circle);
             if (vehicles[vcallsign].subhorizon_circle) map.removeLayer(vehicles[vcallsign].subhorizon_circle);
-            if (vehicles[vcallsign].horizon_circle_titl) map.removeLayer(vehicles[vcallsign].horizon_circle_title);
+            if (vehicles[vcallsign].horizon_circle_title) map.removeLayer(vehicles[vcallsign].horizon_circle_title);
             if (vehicles[vcallsign].subhorizon_circle_title) map.removeLayer(vehicles[vcallsign].subhorizon_circle_title);
         }
     }
