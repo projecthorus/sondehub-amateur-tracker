@@ -75,6 +75,8 @@ var rainbow = ["#ff0000", "#fc9a00", "#f6ff00", "#38ff01", "#009aff","#0000ff"];
 var map = null;
 var overlay = null;
 var layer_clouds = null;
+var nite = null;
+var niteupdate = null;
 
 var notamOverlay = null;
 
@@ -709,6 +711,7 @@ function load() {
 
     if (offline.get("opt_daylight")) {
         map.addLayer(nite);
+        startNiteUpdate();
     }
 
     map.on('moveend', function (e) {
@@ -965,6 +968,25 @@ function title_case(s) {
   return s.replace(/\w\S*/g, function(txt) {
     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
   });
+}
+
+function startNiteUpdate() {
+    if (!nite) return;
+
+    nite.setTime();
+
+    if (niteupdate === null) {
+        niteupdate = setInterval(function() {
+            nite.setTime();
+        }, 60000);
+    }
+}
+
+function stopNiteUpdate() {
+    if (niteupdate !== null) {
+        clearInterval(niteupdate);
+        niteupdate = null;
+    }
 }
 
 function guess_name(key) {

@@ -784,12 +784,10 @@ $(window).ready(function() {
             case "opt_daylight":
                 if(on) { 
                     nite.addTo(map);
-                    niteupdate = setInterval(function() {
-                        nite.setTime();
-                    }, 60000); // Every minute
+                    startNiteUpdate();
                 } else { 
                     nite.remove();
-                    clearInterval(nite);
+                    stopNiteUpdate();
                 }
                 break;
             case "opt_hide_receivers":
