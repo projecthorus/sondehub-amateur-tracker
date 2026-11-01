@@ -50,6 +50,7 @@ function formatData(data) {
         if (data.hasOwnProperty(key)) {
             if (typeof data[key] === 'object') {
                 for (let i in data[key]) {
+                    data[key][i].payload_callsign = encodeURIComponent(data[key][i].payload_callsign);
                     var dataTempEntry = {};
                     var aprsflag = false;
                     dataTempEntry.callsign = {};
