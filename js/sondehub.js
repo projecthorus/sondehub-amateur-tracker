@@ -2971,30 +2971,37 @@ function addPosition(position) {
             if (vehicle_info["prediction_polyline"] && map.hasLayer(vehicle_info["prediction_polyline"][1])) { 
                 map.removeLayer(vehicle_info["prediction_polyline"][1]);
             }
-            if (map.hasLayer(vehicle_info["prediction_launch_polyline"])) { 
+            if (vehicle_info["prediction_launch_polyline"] && map.hasLayer(vehicle_info["prediction_launch_polyline"])) { 
                 map.removeLayer(vehicle_info["prediction_launch_polyline"]);
             }
-            if (map.hasLayer(vehicle_info["prediction_target"])) { 
+            if (vehicle_info["prediction_target"] && map.hasLayer(vehicle_info["prediction_target"])) { 
                 map.removeLayer(vehicle_info["prediction_target"]);
             }
-            if (map.hasLayer(vehicle_info["prediction_burst"])) { 
+            if (vehicle_info["prediction_burst"] && map.hasLayer(vehicle_info["prediction_burst"])) { 
                 map.removeLayer(vehicle_info["prediction_burst"]);
             }
             for(var prediction in vehicle_info["prediction_hysplit"]) {
-                map.removeLayer(vehicle_info["prediction_hysplit"][prediction]);
+                if (prediction){
+                    map.removeLayer(vehicle_info["prediction_hysplit"][prediction]);
+                }
+                
             }
             for(var prediction in vehicle_info["markers_hysplit"]) {
                 for(var pred_hour in vehicle_info["markers_hysplit"][prediction]){
-                    map.removeLayer(vehicle_info["markers_hysplit"][prediction][pred_hour]);
+                    if (pred_hour){
+                        map.removeLayer(vehicle_info["markers_hysplit"][prediction][pred_hour]);
+                    }
                 }
             }
             try {
                 for(var p in vehicle_info.polyline) {
-                    map.removeLayer(vehicle_info.polyline[p]);
+                    if (vehicle_info.polyline){
+                        map.removeLayer(vehicle_info.polyline[p]);
+                    }
                 }
             } catch (e) {};
             for (let i = 0; i < potentialobjects.length; i++) {
-                if (map.hasLayer(potentialobjects[i])) { 
+                if (potentialobjects[i] && map.hasLayer(potentialobjects[i])) { 
                     map.removeLayer(potentialobjects[i]);
                 }
               }
