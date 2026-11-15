@@ -41,25 +41,6 @@ body {
     float: left;
 }
 
-.iScrollVerticalScrollbar {
-    z-index: 49;
-    width: 5px;
-    bottom: 6px;
-    top: 6px;
-    left: 1px;
-    position: absolute;
-}
-
-.iScrollVerticalScrollbar > div {
-    position: absolute;
-    background: none repeat scroll 0 0 padding-box rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    border-radius: 3px 3px 3px 3px;
-    position: absolute;
-    width: 100%;
-    z-index: 49;
-}
-
 .slickbox {
     z-index: 49;
     background-color: #fff;
@@ -986,3 +967,9 @@ header .search form input[type='submit'] {
     background-size: 50%;
     background-position: center;
   }
+
+/* scroll sidebar */
+.scrollwrapper {
+    overflow: scroll;
+    height: 100%;
+}
