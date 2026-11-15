@@ -17,7 +17,7 @@ self.addEventListener('install', function(event) {
                     '/js/leaflet.antimeridian-src.js',
                     '/js/paho-mqtt.js',
                     '/js/jquery-1.12.4-min.js',
-                    '/js/iscroll.js',
+                    '/js/SmoothWheelZoom.js',
                     '/js/chasecar.lib.js',
                     '/js/sondehub.js',
                     '/js/app.js',

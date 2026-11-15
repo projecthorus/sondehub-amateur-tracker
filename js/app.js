@@ -495,21 +495,6 @@ $(window).ready(function() {
     // resize elements if needed
     checkSize();
 
-    // add inline scroll to vehicle list
-    listScroll = new IScroll('#main', {
-        hScrollbar: false,
-        hScroll: false,
-        snap: false,
-        mouseWheel: true,
-        scrollbars: true,
-        scrollbarClass: 'scrollStyle',
-        shrinkScrollbars: 'scale',
-        tap: true,
-        click: true,
-        disableMouse: false,
-        disableTouch: false,
-        disablePointer: false,
-    });
 
     $('#telemetry_graph').on('click', '.graph_label', function() {
         var e = $(this), h;
