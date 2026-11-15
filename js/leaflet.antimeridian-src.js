@@ -77,9 +77,12 @@ function isCrossMeridian(latLngA, latLngB) {
 
 // @function pushLatLng(ring: L.Point[], projectedBounds: L.Bounds, latlng: L.LatLng, map: L.Map)
 // Adds the latlng to the current ring as a layer point and expands the projected bounds.
-function pushLatLng(ring, projectedBounds, latlng, map) {
+function pushLatLng(ring, projectedBounds, latlng, map, offset) {
+	if (offset == undefined){
+		offset = 0;
+	} 
 	if (ring instanceof Array && projectedBounds instanceof L.Bounds && latlng instanceof L.LatLng && map instanceof L.Map) {
-		ring.push(map.latLngToLayerPoint(latlng));
+		ring.push(map.latLngToLayerPoint({"lat": latlng.lat, "lng": latlng.lng + offset}));
 		projectedBounds.extend(ring[ring.length - 1]);
 	} else {
 		throw new Error('In order to push a LatLng into a ring, the ring point array, the LatLng, the projectedBounds, and the map must all be valid.');
@@ -106,6 +109,8 @@ function isBreakRing(latLngA, latLngB) {
 function breakRing(currentLat, nextLat, rings, projectedBounds, map) {
 	if (currentLat instanceof L.LatLng && nextLat instanceof L.LatLng && rings instanceof Array && projectedBounds instanceof L.Bounds && map instanceof L.Map) {
 		var ring = rings[rings.length - 1];
+		var ringl = rings[rings.length - 2];
+		var ringh = rings[rings.length - 3];
 
 		// Calculate two points for the anti-meridian crossing.
 		var breakLat = calculateAntimeridianLat(currentLat, nextLat);
@@ -114,9 +119,15 @@ function breakRing(currentLat, nextLat, rings, projectedBounds, map) {
 		// Add in first anti-meridian latlng to this ring to finish it.
 		// Positive if positive, negative if negative.
 		if (sign(currentLat.lng) > 0) {
-			pushLatLng(ring, projectedBounds, breakLatLngs.shift(), map);
+			var latlng = breakLatLngs.shift();
+			pushLatLng(ring, projectedBounds, latlng, map);
+			pushLatLng(ringl, projectedBounds, latlng, map, -360);
+			pushLatLng(ringh, projectedBounds, latlng, map, +360);
 		} else {
-			pushLatLng(ring, projectedBounds, breakLatLngs.pop(), map);
+			var latlng = breakLatLngs.pop()
+			pushLatLng(ring, projectedBounds, latlng, map);
+			pushLatLng(ringl, projectedBounds, latlng , map, -360);
+			pushLatLng(ringh, projectedBounds, latlng , map, +360);
 		}
 
 		// Return the second anti-meridian latlng
@@ -151,12 +162,16 @@ var Polyline = L.Polyline.extend({
 	_createRings: function (latlngs, rings, projectedBounds) {
 		var len = latlngs.length;
 		rings.push([]);
+		rings.push([]);
+		rings.push([]);
 
 		for (var i = 0; i < len; i++) {
 			var compareLatLng = this._getCompareLatLng(i, len, latlngs);
 			var currentLatLng = latlngs[i];
 
 			pushLatLng(rings[rings.length - 1], projectedBounds, latlngs[i], this._map);
+			pushLatLng(rings[rings.length - 2], projectedBounds, latlngs[i], this._map, -360);
+			pushLatLng(rings[rings.length - 3], projectedBounds, latlngs[i], this._map, 360);
 
 			// If the next point to check exists, then check to see if the
 			// ring should be broken.
@@ -176,9 +191,13 @@ var Polyline = L.Polyline.extend({
 
 		// Starts a new ring and adds the second meridian point.
 	_startNextRing: function (rings, projectedBounds, secondMeridianLatLng) {
-		var ring = [];
-		rings.push(ring);
-		pushLatLng(ring, projectedBounds, secondMeridianLatLng, this._map);
+		rings.push([]);
+		rings.push([]);
+		rings.push([]);
+
+		pushLatLng(rings[rings.length - 1], projectedBounds, secondMeridianLatLng, this._map);
+		pushLatLng(rings[rings.length - 2], projectedBounds, secondMeridianLatLng, this._map, -360);
+		pushLatLng(rings[rings.length - 3], projectedBounds, secondMeridianLatLng, this._map, 360);
 	}
 });
 
